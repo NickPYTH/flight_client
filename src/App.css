@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.settingsButton {
+  -webkit-transition: -webkit-transform .8s ease-in-out;
+  transition: transform .8s ease-in-out;
+}
+
+.settingsButton:hover {
+  -webkit-transform: rotate(360deg);
+  transform: rotate(360deg);
+}
+
+@keyframes close {
+  from {margin-left: 200px}
+  to {margin-left: 80px}
+}
+
+@keyframes open {
+  from {margin-left: 80px}
+  to {margin-left: 200px}
+}
+
+.closeSideMenu {
+  animation: close 400ms;
+  margin-left: 80px;
+}
+
+.openSideMenu {
+  animation: open 200ms;
+  margin-left: 200px;
+}
