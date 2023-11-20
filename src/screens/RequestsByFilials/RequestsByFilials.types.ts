@@ -21,7 +21,8 @@ export type RequestRoutesGridType = {
 export type RequestData = {
     id: string,
     idFilial: string,
-    idRequestFile: string,
+    idRequestFile: number,
+    nameRequestFile: string,
     idState: string,
     nameState: string,
     createDate: string,

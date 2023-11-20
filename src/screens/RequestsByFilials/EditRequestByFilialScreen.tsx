@@ -2,13 +2,16 @@ import React, {useEffect, useState} from "react";
 import {Button, Divider, Flex, message, Select, Tag, Typography, Upload, UploadProps} from "antd";
 import {FilialModel} from "../../models/FilialModel";
 import {PrinterOutlined, RollbackOutlined, SaveOutlined, UploadOutlined} from "@ant-design/icons";
-import {BestReactGrid, Column} from "@sencha/best-react-grid";
+import {BestReactGrid, Column, DateColumn} from "@sencha/best-react-grid";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {justifyOptions} from "../../configs/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import {requestsByFilialsAPI} from "../../services/RequestsByFilialsService";
 import {RequestRoutesGridType} from "./RequestsByFilials.types";
+import {workTypesAPI} from "../../services/WorkTypeService";
+import SelectEditor from "@sencha/best-react-grid/dist/editors/SelectEditor";
+import {WorkTypeModel} from "../../models/WorkTypeModel";
 
 const {Text} = Typography;
 
@@ -17,16 +20,10 @@ export const EditRequestByFilialScreen = () => {
     const [requestId, setRequestId] = useState<string>("");
     const [statusId, setStatusId] = useState<string>("");
     const [filialId, setFilialId] = useState<string>("");
-    const [fileId, setFileId] = useState<string>("");
-    const [fileList, setFileList] = useState<any[]>([{
-        uid: `${fileId}`,
-        name: `${fileId}`,
-        status: 'done',
-        url: `http://localhost:8080/flight/api/file/get?id=${fileId}`,
-        percent: 100,
-    }]);
+    const [fileId, setFileId] = useState<number | null>(null);
+    const [fileList, setFileList] = useState<any | null>(null);
     const [fileUploading, setFileUploading] = useState<boolean>(false);
-    const [gridData, setGridData] = useState<RequestRoutesGridType[]>([])
+    const [gridData, setGridData] = useState<RequestRoutesGridType[]>([]);
     // -----
 
     // Useful utils
@@ -96,6 +93,10 @@ export const EditRequestByFilialScreen = () => {
         data: filials,
         isLoading: isFilialsLoading,
     }] = filialsAPI.useGetAllMutation();
+    const [getAllWorkTypesRequest, {
+        data: workTypes,
+        isLoading: isWorkTypesLoading,
+    }] = workTypesAPI.useGetAllMutation();
     const [getRequestById, {
         data: requestData,
         isLoading: isLoadingGetRequestById,
@@ -105,12 +106,19 @@ export const EditRequestByFilialScreen = () => {
 
     // Effects
     useEffect(() => {
+        getAllWorkTypesRequest();
         getAllFilialsRequest();
         getRequestById(location.pathname.split("/")[2]); // get ID from path location
     }, []);
     useEffect(() => {
         if (requestData) {
-            console.log(requestData.routes)
+            setFileList([{
+                uid: `${requestData.idRequestFile}`,
+                name: `${requestData.nameRequestFile}`,
+                status: 'done',
+                url: `http://localhost:8080/flight/api/file/get?id=${requestData.idRequestFile}`,
+                percent: 100,
+            }])
             setRequestId(requestData.id);
             setFilialId(requestData.idFilial);
             setStatusId(requestData.idState);
@@ -178,20 +186,33 @@ export const EditRequestByFilialScreen = () => {
                                 onClick={() => {
                                 }}>Добавить
                             рейс</Button>
-                        <Button style={{width: 230}} disabled={true}
-                                onClick={() => {
-                                }}>Изменить</Button>
-                        <Button style={{width: 230}} disabled={true}
-                                onClick={() => {
-                                }}>Удалить</Button>
                     </Flex>
                     <BestReactGrid
-                        onChildDoubleTap={(e) => {
+                        onEdit={function (_ref) {
+                            var columnIndex = _ref.columnIndex,
+                                rowIndex = _ref.rowIndex,
+                                rowData = _ref.rowData;
+                            console.log("columnIndex", columnIndex);
+                            console.log("recordIndex", rowIndex);
+                            console.log("rowData", rowData);
                         }}
-                        display="list"
+                        store={{
+                            fields: ["id", "workType", "employee", "dateTime", "airportDeparture", "airportArrival", "passengerCount", "cargoWeightMount", "cargoWeightOut", "cargoWeightIn"],
+                        }}
+                        rowNumbers={true}
                         data={requestData.routes}
                         plugins={{
                             gridfilters: true,
+                            rowedit: {
+                                autoConfirm: false,
+                            },
+                        }}
+                        display="treeGroupedGrid"
+                        groupHeaderTpl="{name} ({group.length})"
+                        stateful
+                        summaryPosition="docked"
+                        itemRipple={{
+                            color: "#111111",
                         }}
                         children={[
                             <Column
@@ -199,6 +220,11 @@ export const EditRequestByFilialScreen = () => {
                                 filterType="string"
                                 flex={2}
                                 text="Вид работ"
+                                editor={
+                                    <SelectEditor
+                                        options={workTypes?.map((type:WorkTypeModel) => type.name)}
+                                    />
+                                }
                             />,
                             <Column
                                 field="employee"
@@ -206,9 +232,9 @@ export const EditRequestByFilialScreen = () => {
                                 flex={2}
                                 text="Ответсвенный"
                             />,
-                            <Column
+                            <DateColumn
                                 field="dateTime"
-                                filterType="string"
+                                filterType="date"
                                 flex={2}
                                 text="Дата и время вылета"
                             />,
@@ -253,6 +279,7 @@ export const EditRequestByFilialScreen = () => {
                                 filterType="string"
                                 flex={2}
                                 text="Код заявки на полет"
+                                editable={false}
                             />]}
                         style={{height: (window.innerHeight - 325).toString()}}
                     />

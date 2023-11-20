@@ -2,11 +2,13 @@ import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import userReducer from './reducers/UserSlice'
 import {requestsByFilialsAPI} from "../services/RequestsByFilialsService";
 import {filialsAPI} from "../services/FilialsService";
+import {workTypesAPI} from "../services/WorkTypeService";
 
 const rootReducer = combineReducers({
     userReducer,
     [requestsByFilialsAPI.reducerPath]: requestsByFilialsAPI.reducer,
     [filialsAPI.reducerPath]: filialsAPI.reducer,
+    [workTypesAPI.reducerPath]: workTypesAPI.reducer,
 })
 
 export const setupStore = () => {
@@ -16,6 +18,7 @@ export const setupStore = () => {
             getDefaultMiddleware()
                 .concat(requestsByFilialsAPI.middleware)
                 .concat(filialsAPI.middleware)
+                .concat(workTypesAPI.middleware)
     })
 }
 
