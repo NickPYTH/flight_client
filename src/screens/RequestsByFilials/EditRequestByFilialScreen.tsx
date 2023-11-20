@@ -2,16 +2,21 @@ import React, {useEffect, useState} from "react";
 import {Button, Divider, Flex, message, Select, Tag, Typography, Upload, UploadProps} from "antd";
 import {FilialModel} from "../../models/FilialModel";
 import {PrinterOutlined, RollbackOutlined, SaveOutlined, UploadOutlined} from "@ant-design/icons";
-import {BestReactGrid, Column, DateColumn} from "@sencha/best-react-grid";
+import {BestReactGrid, Column, DateColumn, IntegerColumn, NumberColumn} from "@sencha/best-react-grid";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {justifyOptions} from "../../configs/constants";
 import {useLocation, useNavigate} from "react-router-dom";
 import {requestsByFilialsAPI} from "../../services/RequestsByFilialsService";
 import {RequestRoutesGridType} from "./RequestsByFilials.types";
-import {workTypesAPI} from "../../services/WorkTypeService";
+import {workTypesAPI} from "../../services/WorkTypesService";
 import SelectEditor from "@sencha/best-react-grid/dist/editors/SelectEditor";
 import {WorkTypeModel} from "../../models/WorkTypeModel";
+import {airportsAPI} from "../../services/AirportsService";
+import {AirportModel} from "../../models/AirportModel";
+import {employeeResponsibleAPI} from "../../services/EmployeeResponsibleService";
+import {EmployeeResponsibleModel} from "../../models/EmployeeResponsibleModel";
+import {flightFilialAPI} from "../../services/FlightFilialService";
 
 const {Text} = Typography;
 
@@ -97,6 +102,19 @@ export const EditRequestByFilialScreen = () => {
         data: workTypes,
         isLoading: isWorkTypesLoading,
     }] = workTypesAPI.useGetAllMutation();
+    const [getAllAirportsRequest, {
+        data: airports,
+        isLoading: isAirportsLoading,
+    }] = airportsAPI.useGetAllMutation();
+    const [getAllEmployeeResponsibleRequest, {
+        data: employeeResponsible,
+        isLoading: isEmployeeResponsibleLoading,
+    }] = employeeResponsibleAPI.useGetAllMutation();
+    const [updateFlightFilial, {
+        data: updateFlightFilialData,
+        isLoading: isLoadingUpdateFilial,
+        isError: isErrorUpdateFilial,
+    }] = flightFilialAPI.useUpdateMutation();
     const [getRequestById, {
         data: requestData,
         isLoading: isLoadingGetRequestById,
@@ -108,6 +126,8 @@ export const EditRequestByFilialScreen = () => {
     useEffect(() => {
         getAllWorkTypesRequest();
         getAllFilialsRequest();
+        getAllAirportsRequest();
+        getAllEmployeeResponsibleRequest();
         getRequestById(location.pathname.split("/")[2]); // get ID from path location
     }, []);
     useEffect(() => {
@@ -126,14 +146,36 @@ export const EditRequestByFilialScreen = () => {
             setGridData(requestData.routes);
         }
     }, [requestData]);
+    useEffect(() => {
+        if (updateFlightFilialData) {
+            getRequestById(location.pathname.split("/")[2]); // get ID from path location
+        }
+    }, [updateFlightFilialData])
     // -----
 
     // Handlers
     const backBtnHandler = () => {
         return navigate(`/requests`);
     }
+    const updateFlightFilialHandler = (rowData: any) => {
+        console.log(rowData);
+        const idAirportArrival = airports?.find((airport:AirportModel) => airport.name === rowData.airportArrival)?.id;
+        const idAirportDeparture = airports?.find((airport:AirportModel) => airport.name === rowData.airportDeparture)?.id;
+        if (idAirportArrival && idAirportDeparture) {
+            updateFlightFilial({
+                id: rowData.id,
+                routeId: 123,
+                flyDate: rowData.dateTime,
+                idAirportArrival,
+                idAirportDeparture,
+                passengerCount: rowData.passengerCount,
+                cargoWeightIn: rowData.cargoWeightIn,
+                cargoWeightOut: rowData.cargoWeightOut,
+                cargoWeightMount: rowData.cargoWeightMount
+            });
+        }
+    }
     // -----
-    console.log(gridData)
     return (
         <Flex gap="small" vertical>
             <Navbar/>
@@ -158,6 +200,7 @@ export const EditRequestByFilialScreen = () => {
                                     value: string,
                                     label: string
                                 } => ({value: filial.id.toString(), label: filial.name}))}
+                                onSelect={(value) => setFilialId(value)}
                             />
                             <Upload  {...propsFile}>
                                 <Button style={{width: 330}} icon={<UploadOutlined/>}>Обновить файл полетной
@@ -192,9 +235,11 @@ export const EditRequestByFilialScreen = () => {
                             var columnIndex = _ref.columnIndex,
                                 rowIndex = _ref.rowIndex,
                                 rowData = _ref.rowData;
-                            console.log("columnIndex", columnIndex);
-                            console.log("recordIndex", rowIndex);
-                            console.log("rowData", rowData);
+                            if (rowData)
+                                updateFlightFilialHandler(rowData);
+                        }}
+                        onValidateEdit={(_ref) => {
+                            return true;
                         }}
                         store={{
                             fields: ["id", "workType", "employee", "dateTime", "airportDeparture", "airportArrival", "passengerCount", "cargoWeightMount", "cargoWeightOut", "cargoWeightIn"],
@@ -216,71 +261,103 @@ export const EditRequestByFilialScreen = () => {
                         }}
                         children={[
                             <Column
+                                editable
                                 field="workType"
                                 filterType="string"
                                 flex={2}
                                 text="Вид работ"
                                 editor={
                                     <SelectEditor
-                                        options={workTypes?.map((type:WorkTypeModel) => type.name)}
+                                        options={workTypes?.map((type: WorkTypeModel) => type.name)}
                                     />
                                 }
                             />,
                             <Column
+                                editable
                                 field="employee"
                                 filterType="string"
                                 flex={2}
                                 text="Ответсвенный"
+                                editor={
+                                    <SelectEditor
+                                        options={employeeResponsible?.map((emp: EmployeeResponsibleModel) => emp.fio)}
+                                    />
+                                }
                             />,
                             <DateColumn
+                                editable
                                 field="dateTime"
                                 filterType="date"
                                 flex={2}
                                 text="Дата и время вылета"
                             />,
                             <Column
+                                editable
                                 field="airportDeparture"
                                 filterType="string"
                                 flex={2}
                                 text="Аэропорт вылета"
+                                editor={
+                                    <SelectEditor
+                                        options={airports?.map((airport: AirportModel) => airport.name)}
+                                    />
+                                }
                             />,
                             <Column
+                                editable
                                 field="airportArrival"
                                 filterType="string"
                                 flex={2}
                                 text="Аэропорт назначения"
+                                editor={
+                                    <SelectEditor
+                                        options={airports?.map((airport: AirportModel) => airport.name)}
+                                    />
+                                }
                             />,
-                            <Column
+                            <IntegerColumn
+                                editable
                                 field="passengerCount"
                                 filterType="string"
                                 flex={2}
                                 text="Кол-во пассажиров"
                             />,
-                            <Column
+                            <NumberColumn
+                                editable
                                 field="cargoWeightMount"
                                 filterType="string"
                                 flex={2}
                                 text="Груз всего, тонн"
                             />,
-                            <Column
+                            <NumberColumn
+                                editable
                                 field="cargoWeightOut"
                                 filterType="string"
                                 flex={2}
                                 text="Груз на внешней подвеске, тонн"
                             />,
-                            <Column
+                            <NumberColumn
+                                editable
                                 field="cargoWeightIn"
                                 filterType="string"
                                 flex={2}
                                 text="Груз внутри фюзеляжа, тонн"
                             />,
-                            <Column
+                            <IntegerColumn
                                 field="id"
                                 filterType="string"
                                 flex={2}
                                 text="Код заявки на полет"
                                 editable={false}
+                            />,
+                            <IntegerColumn
+                                field="routeId"
+                                filterType="string"
+                                flex={2}
+                                text="Route id"
+                                hidden={true}
                             />]}
+
                         style={{height: (window.innerHeight - 325).toString()}}
                     />
                 </>

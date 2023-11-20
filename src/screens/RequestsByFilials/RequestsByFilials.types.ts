@@ -15,6 +15,7 @@ export type RequestRoutesGridType = {
     cargoWeightMount: string,
     cargoWeightIn: string,
     cargoWeightOut: string,
+    routeId: string,
     id: string,
 }
 
