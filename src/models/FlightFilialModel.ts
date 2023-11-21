@@ -1,6 +1,7 @@
 export interface FlightFilialModel {
     id: number,
-    routeId: number,
+    idRoute: number,
+    idWorkType: number,
     flyDate: string,
     idAirportArrival: number,
     idAirportDeparture: number,
