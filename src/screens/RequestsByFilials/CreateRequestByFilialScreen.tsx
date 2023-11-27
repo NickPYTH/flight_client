@@ -1,22 +1,22 @@
 import React, {useEffect, useState} from "react";
-import {Button, Divider, Flex, message, Select, Tag, Typography, Upload, UploadProps} from "antd";
+import {Button, Divider, Flex, message, Select, Typography, Upload, UploadProps} from "antd";
 import {FilialModel} from "../../models/FilialModel";
-import {PrinterOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
+import {RollbackOutlined, UploadOutlined} from "@ant-design/icons";
+//@ts-ignore
+import {Column, DateColumn, Grid} from '@sencha/ext-react-modern';
+import {Ext} from "../../index";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {justifyOptions} from "../../configs/constants";
 import {useLocation, useNavigate} from "react-router-dom";
-import {requestsByFilialsAPI} from "../../services/RequestsByFilialsService";
 import {RequestRoutesGridType} from "./RequestsByFilials.types";
-//@ts-ignore
-import {Column, DateColumn, Grid} from '@sencha/ext-react-modern';
-import {Ext} from "../../index";
-import {CreateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilialScreen/CreateFlightModal";
-import {UpdateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilialScreen/UpdateFlightModal";
+import {requestsByFilialsAPI} from "../../services/RequestsByFilialsService";
+import {UpdateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/UpdateFlightModal";
+import {CreateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/CreateFlightModal";
 
 const {Text} = Typography;
 
-export const EditRequestByFilialScreen = () => {
+export const CreateRequestByFilialScreen = () => {
     // States
     const [requestId, setRequestId] = useState<string>("");
     const [statusId, setStatusId] = useState<string>("");
@@ -159,33 +159,29 @@ export const EditRequestByFilialScreen = () => {
     return (
         <>
             <CreateFlightModal visible={createFlightModalVisible} setVisible={setCreateFlightModalVisible}
-                               refresh={getRequestById}/>
+                               setGridData={setGridData}/>
             {selectedRecord &&
                 <UpdateFlightModal visible={updateFlightModalVisible} setVisible={setUpdateFlightModalVisible}
-                                   refresh={getRequestById} rowData={selectedRecord} setRowData={setSelectedRecord}/>
+                                   rowData={selectedRecord} setRowData={setSelectedRecord} setGridData={setGridData}/>
             }
             <Flex gap="small" vertical>
                 <Navbar/>
-                {(filials === undefined || requestData === undefined) ?
+                {(filials === undefined) ?
                     <>Loading</> :
                     <>
-                        <Flex justify={justifyOptions.flexStart}>
-                            <Flex gap="small" vertical style={{margin: "5px 34px 0 17px"}}>
-                                <Flex gap="small" style={{margin: "0 0 7px 0"}}>
-                                    <Button size={'large'} onClick={backBtnHandler} icon={<RollbackOutlined/>}/>
-                                    <Button size={'large'} icon={<PrinterOutlined/>}/>
+                        <Flex style={{marginLeft: 5}} gap="small" justify={justifyOptions.flexStart}>
+                            <Flex gap="small" vertical>
+                                <Flex gap="small" vertical>
+                                    <Button size={'middle'} onClick={backBtnHandler}
+                                            icon={<RollbackOutlined/>}>Назад</Button>
+                                    <Button size={'middle'}>Создать</Button>
                                 </Flex>
-                                <Button size={'middle'}>Отправить на согласование</Button>
-                                <Button size={'middle'}>Создать заявку на полет</Button>
                             </Flex>
                             <Flex gap="small" vertical>
-                                <Text>Код заявки <strong>{requestId}</strong></Text>
-                                <Text>Статус заявки <Tag color="blue">{requestData.nameState}</Tag></Text>
                                 <Select
                                     size={'middle'}
-                                    placeholder="Филиал"
+                                    placeholder="Выберите филиал"
                                     loading={isFilialsLoading}
-                                    value={filialId.toString()}
                                     style={{width: 330}}
                                     options={filials.map((filial: FilialModel): {
                                         value: string,
@@ -194,8 +190,7 @@ export const EditRequestByFilialScreen = () => {
                                     onSelect={(value) => setFilialId(value)}
                                 />
                                 <Upload  {...propsFile}>
-                                    <Button disabled={fileUploading} size={'middle'} style={{width: 330}}
-                                            icon={<UploadOutlined/>}>Обновить файл
+                                    <Button size={'middle'} style={{width: 330}} icon={<UploadOutlined/>}>Добавить файл
                                         полетной
                                         заявки</Button>
                                 </Upload>
@@ -285,6 +280,7 @@ export const EditRequestByFilialScreen = () => {
                                 flex={2}
                                 text="Код заявки на полет"
                                 editable={false}
+                                hidden={true}
                             />
                         </Grid>
                     </>

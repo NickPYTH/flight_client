@@ -17,6 +17,7 @@ export const AllRequestsByFilialsScreen = () => {
     }] = requestsByFilialsAPI.useGetAllByYearMutation();
     const [year, setYear] = useState<number>(2023);
     const addBtnHandler = () => {
+        return navigate(`create`);
     };
     const selectYearHandler = (value: number) => {
         setYear(value);

@@ -7,7 +7,8 @@ import {Router} from "./configs/Router";
 import {Provider} from "react-redux";
 
 const store = setupStore();
-
+//@ts-ignore
+export const Ext = window['Ext'];
 // @ts-ignore
 ReactDOM.render(<Provider store={store}>
         <ConfigProvider locale={ruRU}>

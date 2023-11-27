@@ -20,5 +20,13 @@ export const flightFilialAPI = createApi({
             }),
             invalidatesTags: ['flightFilial']
         }),
+        create: build.mutation<FlightFilialModel, FlightFilialModel>({
+            query: (body) => ({
+                url: `/create`,
+                method: 'POST',
+                body
+            }),
+            invalidatesTags: ['flightFilial']
+        }),
     })
 });

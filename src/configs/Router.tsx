@@ -2,6 +2,7 @@ import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import React from "react";
 import {AllRequestsByFilialsScreen} from "../screens/RequestsByFilials/AllRequestsByFilialsScreen";
 import {EditRequestByFilialScreen} from "../screens/RequestsByFilials/EditRequestByFilialScreen";
+import {CreateRequestByFilialScreen} from "../screens/RequestsByFilials/CreateRequestByFilialScreen";
 
 export const Router: React.FC = () => {
 
@@ -14,6 +15,10 @@ export const Router: React.FC = () => {
             <Route
                 path='/requests/:id'
                 element={<EditRequestByFilialScreen />}
+            />
+            <Route
+                path='/requests/create'
+                element={<CreateRequestByFilialScreen />}
             />
             <Route
                 path='*'

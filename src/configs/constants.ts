@@ -14,3 +14,4 @@ export enum alignOptions {
 };
 
 export const YEARS = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+
