@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Divider, Flex, message, Select, Tag, Typography, Upload, UploadProps} from "antd";
+import {Button, Divider, Flex, message, Modal, Select, Tag, Typography, Upload, UploadProps} from "antd";
 import {FilialModel} from "../../models/FilialModel";
 import {PrinterOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
@@ -28,7 +28,6 @@ export const EditRequestByFilialScreen = () => {
     const [selectedRecord, setSelectedRecord] = useState<RequestRoutesGridType | null>(null);
     const [createFlightModalVisible, setCreateFlightModalVisible] = useState<boolean>(false);
     const [updateFlightModalVisible, setUpdateFlightModalVisible] = useState<boolean>(false);
-
     // -----
 
     // Useful utils
@@ -102,8 +101,19 @@ export const EditRequestByFilialScreen = () => {
     const [getRequestById, {
         data: requestData,
         isLoading: isLoadingGetRequestById,
-        isError: isErrorGetRequestById,
     }] = requestsByFilialsAPI.useGetByIdMutation();
+    const [sendOnConfirm, {
+        data: sendOnConfirmData,
+        isLoading: isLoadingSendOnConfirm,
+    }] = requestsByFilialsAPI.useSendOnConfirmMutation();
+    const [confirm, {
+        data: confirmData,
+        isLoading: isLoadingConfirm,
+    }] = requestsByFilialsAPI.useConfirmMutation();
+    const [decline, {
+        data: declineData,
+        isLoading: isLoadingDecline,
+    }] = requestsByFilialsAPI.useDeclineMutation();
     const [getAllFilialsRequest, {
         data: filials,
         isLoading: isFilialsLoading,
@@ -117,6 +127,7 @@ export const EditRequestByFilialScreen = () => {
     }, []);
     useEffect(() => {
         if (requestData) {
+            console.log('here')
             setFileList([{
                 uid: `${requestData.idRequestFile}`,
                 name: `${requestData.nameRequestFile}`,
@@ -149,11 +160,26 @@ export const EditRequestByFilialScreen = () => {
         if (selectedRecord !== null)
             setUpdateFlightModalVisible(true);
     }, [selectedRecord])
+    useEffect(() => {
+        console.log(sendOnConfirmData, confirmData, declineData)
+        if (sendOnConfirmData || confirmData || declineData) {
+            getRequestById(requestId);
+        }
+    }, [sendOnConfirmData, confirmData, declineData]);
     // -----
 
     // Handlers
     const backBtnHandler = () => {
         return navigate(`/requests`);
+    }
+    const sendOnConfirmHandler = () => {
+        sendOnConfirm(requestId);
+    }
+    const confirmHandler = () => {
+        confirm(requestId);
+    }
+    const declineHandler = () => {
+        decline(requestId);
     }
     // -----
     return (
@@ -175,13 +201,62 @@ export const EditRequestByFilialScreen = () => {
                                     <Button size={'large'} onClick={backBtnHandler} icon={<RollbackOutlined/>}/>
                                     <Button size={'large'} icon={<PrinterOutlined/>}/>
                                 </Flex>
-                                <Button size={'middle'}>Отправить на согласование</Button>
-                                <Button size={'middle'}>Создать заявку на полет</Button>
+                                {requestData.nameState === 'Создано' &&
+                                    <Button size={'middle'} onClick={() => {
+                                        Modal.confirm({
+                                            title: 'Отправка на согласование',
+                                            okText: "Да, отправить",
+                                            onOk: sendOnConfirmHandler,
+                                            content: 'Сформировать заявку на согласование в СОП?',
+                                            footer: (_, {OkBtn, CancelBtn}) => (
+                                                <>
+                                                    <CancelBtn/>
+                                                    <OkBtn/>
+                                                </>
+                                            ),
+                                        });
+                                    }}>Отправить на согласование</Button>
+                                }
+                                {requestData.nameState === 'На согласовании' &&
+                                    <>
+                                        <Button size={'middle'} onClick={() => {
+                                            Modal.confirm({
+                                                title: 'Внимание',
+                                                okText: "Да, утвердить",
+                                                onOk: confirmHandler,
+                                                content: 'Вы точно хотите утвердить заявку?',
+                                                footer: (_, {OkBtn, CancelBtn}) => (
+                                                    <>
+                                                        <CancelBtn/>
+                                                        <OkBtn/>
+                                                    </>
+                                                ),
+                                            });
+                                        }}>Утвердить</Button>
+                                        <Button size={'middle'} onClick={() => {
+                                            Modal.confirm({
+                                                title: 'Внимание',
+                                                okText: "Да, отклонить",
+                                                onOk: declineHandler,
+                                                content: 'Вы точно хотите отклонить заявку?',
+                                                footer: (_, {OkBtn, CancelBtn}) => (
+                                                    <>
+                                                        <CancelBtn/>
+                                                        <OkBtn/>
+                                                    </>
+                                                ),
+                                            });
+                                        }}>Отклонить</Button>
+                                    </>
+                                }
+                                <Button disabled={requestData.nameState === 'Создано'} size={'middle'}>Создать заявку на
+                                    полет</Button>
                             </Flex>
                             <Flex gap="small" vertical>
                                 <Text>Код заявки <strong>{requestId}</strong></Text>
                                 <Text>Статус заявки <Tag color="blue">{requestData.nameState}</Tag></Text>
                                 <Select
+                                    disabled={requestData.nameState === 'Утверждено'}
                                     size={'middle'}
                                     placeholder="Филиал"
                                     loading={isFilialsLoading}
@@ -194,7 +269,7 @@ export const EditRequestByFilialScreen = () => {
                                     onSelect={(value) => setFilialId(value)}
                                 />
                                 <Upload  {...propsFile}>
-                                    <Button disabled={fileUploading} size={'middle'} style={{width: 330}}
+                                    <Button disabled={fileUploading || requestData.nameState === 'Утверждено'} size={'middle'} style={{width: 330}}
                                             icon={<UploadOutlined/>}>Обновить файл
                                         полетной
                                         заявки</Button>
@@ -204,7 +279,7 @@ export const EditRequestByFilialScreen = () => {
                         <Divider/>
                         <Flex wrap="wrap" gap="small" justify={justifyOptions.flexStart}
                               style={{margin: "5px 0px 0 17px"}}>
-                            <Button size={'middle'} style={{width: 230}}
+                            <Button disabled={requestData.nameState === 'Утверждено'} size={'middle'} style={{width: 230}}
                                     onClick={() => setCreateFlightModalVisible(true)}>Добавить
                                 маршрут</Button>
                         </Flex>
@@ -214,7 +289,8 @@ export const EditRequestByFilialScreen = () => {
                             store={store}
                             style={{height: window.innerHeight - 325}}
                             onChilddoubletap={(event: any) => {
-                                setSelectedRecord(event.location.record.data);
+                                if (requestData.nameState !== 'Утверждено')
+                                    setSelectedRecord(event.location.record.data);
                             }}
                         >
                             <Column

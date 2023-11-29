@@ -91,7 +91,6 @@ export const UpdateFlightModal = (props: ModalProps) => {
         const idAirportDeparture = airports?.find((airport: AirportModel) => airport.name === airportDepartureModal)?.id;
         const idWorkType = workTypes?.find((workType: WorkTypeModel) => workType.name === workTypeModal)?.id;
         if (idAirportArrival && idAirportDeparture && idWorkType) {
-            console.log(flightDateModal)
             props.setGridData((prev: RequestRoutesGridType[]) => {
                 let record: RequestRoutesGridType = {
                     id: "",

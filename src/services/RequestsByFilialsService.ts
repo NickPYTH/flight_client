@@ -27,5 +27,26 @@ export const requestsByFilialsAPI = createApi({
             }),
             invalidatesTags: ['RequestsByFilials']
         }),
+        sendOnConfirm: build.mutation<string, string>({
+            query: (id) => ({
+                url: `/sendOnConfirm?flightRequestId=${id}`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['RequestsByFilials']
+        }),
+        confirm: build.mutation<string, string>({
+            query: (id) => ({
+                url: `/confirm?flightRequestId=${id}`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['RequestsByFilials']
+        }),
+        decline: build.mutation<string, string>({
+            query: (id) => ({
+                url: `/decline?flightRequestId=${id}`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['RequestsByFilials']
+        }),
     })
 });
