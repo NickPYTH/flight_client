@@ -4,7 +4,7 @@ import {
     RequestData,
     RequestRoutesGridType,
     RequestsByFilialsGridType
-} from "../screens/RequestsByFilials/RequestsByFilials.types";
+} from "../screens/RequestsByFilials/RequestsFilials.types";
 
 export const requestsByFilialsAPI = createApi({
     reducerPath: 'requestsByFilials',

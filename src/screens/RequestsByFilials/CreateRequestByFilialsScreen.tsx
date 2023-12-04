@@ -9,14 +9,14 @@ import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {justifyOptions} from "../../configs/constants";
 import {useLocation, useNavigate} from "react-router-dom";
-import {RequestRoutesGridType} from "./RequestsByFilials.types";
-import {requestsByFilialsAPI} from "../../services/RequestsByFilialsService";
+import {RequestRoutesGridType} from "./RequestsFilials.types";
+import {requestsByFilialsAPI} from "../../services/RequestFilialService";
 import {UpdateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/UpdateFlightModal";
 import {CreateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/CreateFlightModal";
 
 const {Text} = Typography;
 
-export const CreateRequestByFilialScreen = () => {
+export const CreateRequestByFilialsScreen = () => {
     // States
     const [requestId, setRequestId] = useState<string>("");
     const [statusId, setStatusId] = useState<string>("");

@@ -27,10 +27,10 @@ export const CreateFlightModal = (props: ModalProps) => {
     const [flightDateModal, setFlightDateModal] = useState<any>(""); // Date.js format
     const [airportDepartureModal, setAirportDepartureModal] = useState<string>("");
     const [airportArrivalModal, setAirportArrivalModal] = useState<string>("");
-    const [passengerCountModal, setPassengerCountModal] = useState<number>(-1);
-    const [cargoWeightMount, setCargoWeightMount] = useState<number>(-1);
-    const [cargoWeighIn, setCargoWeighIn] = useState<number>(-1);
-    const [cargoWeightOut, setCargoWeightOut] = useState<number>(-1);
+    const [passengerCountModal, setPassengerCountModal] = useState<number>(0);
+    const [cargoWeightMount, setCargoWeightMount] = useState<number>(0);
+    const [cargoWeighIn, setCargoWeighIn] = useState<number>(0);
+    const [cargoWeightOut, setCargoWeightOut] = useState<number>(0);
     // -----
 
     // Web requests
@@ -114,6 +114,7 @@ export const CreateFlightModal = (props: ModalProps) => {
                 console.log('Pasc count ')
             }
             if (workType && airportArrival && airportDeparture && respEmp) {
+                closeCreateRouteModalHandler();
                 createFlightFilial({
                     idRequestFilial: requestId,
                     idWorkType: workType.id,
@@ -126,7 +127,6 @@ export const CreateFlightModal = (props: ModalProps) => {
                     cargoWeightOut: cargoWeightOut,
                     cargoWeightMount: cargoWeightMount
                 });
-                closeCreateRouteModalHandler();
             }
         }
     }
@@ -137,10 +137,10 @@ export const CreateFlightModal = (props: ModalProps) => {
         setFlightDateModal("");
         setAirportDepartureModal("");
         setAirportArrivalModal("");
-        setPassengerCountModal(-1);
-        setCargoWeightMount(-1);
-        setCargoWeightOut(-1);
-        setCargoWeighIn(-1);
+        setPassengerCountModal(0);
+        setCargoWeightMount(0);
+        setCargoWeightOut(0);
+        setCargoWeighIn(0);
     }
     const getEmpRespValue = (searchText: string) => {
         if (employeeResponsible) {
@@ -174,6 +174,7 @@ export const CreateFlightModal = (props: ModalProps) => {
             <Flex gap={'small'} style={{width: '100%'}}>
                 <Flex vertical gap={"small"} style={{width: '100%'}}>
                     <AutoComplete
+                        value={workTypeModal}
                         size={'large'}
                         options={workTypeOptions}
                         style={{width: '100%'}}
@@ -183,6 +184,7 @@ export const CreateFlightModal = (props: ModalProps) => {
                         onSelect={(value, option) => setWorkTypeModal(value)}
                     />
                     <AutoComplete
+                        value={empRespModal}
                         size={'large'}
                         options={empRespOptions}
                         style={{width: '100%'}}
@@ -191,11 +193,12 @@ export const CreateFlightModal = (props: ModalProps) => {
                         notFoundContent={'Ответственные не найдены'}
                         onSelect={(value, option) => setEmpRespModal(value)}
                     />
-                    <DatePicker style={{width: '100%'}} size={'large'} showTime onChange={(value) => {
+                    <DatePicker value={flightDateModal} style={{width: '100%'}} size={'large'} showTime onChange={(value) => {
                         if (value)
                             setFlightDateModal(value)
                     }} onOk={(value) => setFlightDateModal(value)}/>
                     <AutoComplete
+                        value={airportDepartureModal}
                         size={'large'}
                         options={airportsOptions}
                         style={{width: '100%'}}
@@ -205,6 +208,7 @@ export const CreateFlightModal = (props: ModalProps) => {
                         onSelect={(value, option) => setAirportDepartureModal(value)}
                     />
                     <AutoComplete
+                        value={airportArrivalModal}
                         size={'large'}
                         options={airportsOptions}
                         style={{width: '100%'}}
@@ -216,6 +220,7 @@ export const CreateFlightModal = (props: ModalProps) => {
                 </Flex>
                 <Flex vertical gap={"small"} style={{width: '100%'}}>
                     <InputNumber
+                        value={passengerCountModal}
                         style={{width: '100%'}}
                         size={'large'}
                         min={0}
@@ -226,6 +231,7 @@ export const CreateFlightModal = (props: ModalProps) => {
                         placeholder={'Введите колличество пассажиров'}
                     />
                     <InputNumber
+                        value={cargoWeightMount}
                         style={{width: '100%'}}
                         size={'large'}
                         min={0}
@@ -236,6 +242,7 @@ export const CreateFlightModal = (props: ModalProps) => {
                         placeholder={'Введите общий вес груза'}
                     />
                     <InputNumber
+                        value={cargoWeightOut}
                         style={{width: '100%'}}
                         size={'large'}
                         min={0}
@@ -246,6 +253,7 @@ export const CreateFlightModal = (props: ModalProps) => {
                         placeholder={'Введите вес груза на внешней подвеске'}
                     />
                     <InputNumber
+                        value={cargoWeighIn}
                         style={{width: '100%'}}
                         size={'large'}
                         min={0}

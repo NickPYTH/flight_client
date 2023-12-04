@@ -8,7 +8,7 @@ import {workTypesAPI} from "../../../services/WorkTypesService";
 import {airportsAPI} from "../../../services/AirportsService";
 import {employeeResponsibleAPI} from "../../../services/EmployeeResponsibleService";
 import dayjs from 'dayjs';
-import {RequestRoutesGridType} from "../../../screens/RequestsByFilials/RequestsByFilials.types";
+import {RequestRoutesGridType} from "../../../screens/RequestsByFilials/RequestsFilials.types";
 
 type ModalProps = {
     visible: boolean,

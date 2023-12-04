@@ -1,11 +1,15 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import userReducer from './reducers/UserSlice'
-import {requestsByFilialsAPI} from "../services/RequestsByFilialsService";
+import {requestsByFilialsAPI} from "../services/RequestFilialService";
 import {filialsAPI} from "../services/FilialsService";
 import {workTypesAPI} from "../services/WorkTypesService";
 import {airportsAPI} from "../services/AirportsService";
 import {employeeResponsibleAPI} from "../services/EmployeeResponsibleService";
 import {flightFilialAPI} from "../services/FlightFilialService";
+import {requestAPI} from "../services/RequestService";
+import {aircraftModelAPI} from "../services/AircraftModelService";
+import {flightTargetAPI} from "../services/FlightTargetService";
+import {empCustomerAPI} from "../services/EmpCustomerService";
 
 const rootReducer = combineReducers({
     userReducer,
@@ -15,6 +19,10 @@ const rootReducer = combineReducers({
     [airportsAPI.reducerPath]: airportsAPI.reducer,
     [employeeResponsibleAPI.reducerPath]: employeeResponsibleAPI.reducer,
     [flightFilialAPI.reducerPath]: flightFilialAPI.reducer,
+    [requestAPI.reducerPath]: requestAPI.reducer,
+    [aircraftModelAPI.reducerPath]: aircraftModelAPI.reducer,
+    [flightTargetAPI.reducerPath]: flightTargetAPI.reducer,
+    [empCustomerAPI.reducerPath]: empCustomerAPI.reducer,
 })
 
 export const setupStore = () => {
@@ -28,6 +36,10 @@ export const setupStore = () => {
                 .concat(airportsAPI.middleware)
                 .concat(employeeResponsibleAPI.middleware)
                 .concat(flightFilialAPI.middleware)
+                .concat(requestAPI.middleware)
+                .concat(aircraftModelAPI.middleware)
+                .concat(flightTargetAPI.middleware)
+                .concat(empCustomerAPI.middleware)
     })
 }
 

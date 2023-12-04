@@ -3,36 +3,36 @@ import {Navbar} from "../../components/Layout/Header/Navbar";
 import "@sencha/best-react-grid/dist/themes/grui.css";
 import {Button, Flex, Select} from "antd";
 import {justifyOptions, YEARS} from "../../configs/constants";
-import {requestsByFilialsAPI} from "../../services/RequestFilialService";
-import {RequestsByFilialsGridType} from "./RequestsFilials.types";
+import {RequestsGridType} from "./Requests.types";
 import {useNavigate} from "react-router-dom";
 //@ts-ignore
 import {ExtTreegroupedgrid} from '@sencha/ext-react-modern';
 import {Ext} from "../../index";
+import {requestAPI} from "../../services/RequestService";
 
-export const AllRequestsByFilialsScreen = () => {
+export const AllRequestsScreen = () => {
     let navigate = useNavigate();
-    const [data, setData] = useState<RequestsByFilialsGridType[]>([]);
-    const [getAllRequestsByFilials, {
-        data: dataGetAllRequestByFilials,
-        isLoading: isLoadingGetAllRequestByFilials,
-    }] = requestsByFilialsAPI.useGetAllByYearMutation();
+    const [data, setData] = useState<RequestsGridType[]>([]);
+    const [getAllRequests, {
+        data: dataGetAllRequests,
+        isLoading: isLoadingGetAllRequests,
+    }] = requestAPI.useGetAllByYearMutation();
     const [year, setYear] = useState<number>(2023);
     const addBtnHandler = () => {
         return navigate(`create`);
     };
     const selectYearHandler = (value: number) => {
         setYear(value);
-        getAllRequestsByFilials(value);
+        getAllRequests(value);
     };
     useEffect(() => {
-        getAllRequestsByFilials(year)
+        getAllRequests(year)
     }, []);
     useEffect(() => {
-        if (dataGetAllRequestByFilials) {
-            setData(dataGetAllRequestByFilials)
+        if (dataGetAllRequests) {
+            setData(dataGetAllRequests)
         }
-    }, [dataGetAllRequestByFilials]);
+    }, [dataGetAllRequests]);
     let store = Ext.create('Ext.data.Store', {
         data: data,
         groupers: [],
@@ -49,7 +49,7 @@ export const AllRequestsByFilialsScreen = () => {
             <Flex style={{margin: "0 5px 0 5px"}} gap={"small"} vertical={false} justify={justifyOptions.spaceBetween}>
                 <Button onClick={addBtnHandler}>Добавить</Button>
                 <Select
-                    disabled={isLoadingGetAllRequestByFilials}
+                    disabled={isLoadingGetAllRequests}
                     value={year}
                     onChange={selectYearHandler}
                     options={YEARS.map((year: number) => ({value: year, label: year.toString()}))}
@@ -71,32 +71,74 @@ export const AllRequestsByFilialsScreen = () => {
                         }}
                         columns={[
                             {
-                                text: 'ИД',
+                                text: 'Код',
                                 dataIndex: 'id',
                                 groupable: true,
                                 filterType: 'string',
-                                width: 200
+                                flex: 1
                             },
                             {
-                                text: 'Дата создания',
-                                dataIndex: 'createDate',
+                                text: 'Тип авиасообщения',
+                                dataIndex: 'aircraftTypeName',
                                 groupable: true,
-                                filterType: 'list',
-                                width: 300,
+                                filterType: 'string',
+                                flex: 1
                             },
                             {
-                                text: 'Филиал',
-                                dataIndex: 'nameFilial',
+                                text: 'Номер',
+                                dataIndex: 'docNum',
                                 groupable: true,
-                                summary: 'count',
-                                width: 300
+                                filterType: 'string',
+                                flex: 1
+                            },
+                            {
+                                text: 'Дата вылета',
+                                dataIndex: 'flyDateStart',
+                                groupable: true,
+                                filterType: 'string',
+                                flex: 1
+                            },
+                            {
+                                text: 'Модель ВС',
+                                dataIndex: 'aircraftModelName',
+                                groupable: true,
+                                filterType: 'string',
+                                flex: 1
+                            },
+                            {
+                                text: 'Авиакомпания',
+                                dataIndex: 'airlineName',
+                                groupable: true,
+                                filterType: 'string',
+                                flex: 1
+                            },
+                            {
+                                text: 'Договор',
+                                dataIndex: 'docName',
+                                groupable: true,
+                                filterType: 'string',
+                                flex: 1
+                            },
+                            {
+                                text: 'Цель полета',
+                                dataIndex: 'flightTargetName',
+                                groupable: true,
+                                filterType: 'string',
+                                flex: 1
                             },
                             {
                                 text: 'Состояние',
-                                dataIndex: 'nameState',
+                                dataIndex: 'stateName',
                                 groupable: true,
-                                summary: 'count',
-                                width: 300
+                                filterType: 'string',
+                                flex: 1
+                            },
+                            {
+                                text: 'Примечание',
+                                dataIndex: 'note',
+                                groupable: true,
+                                filterType: 'string',
+                                flex: 1
                             },
                         ]}
                         platformConfig={{

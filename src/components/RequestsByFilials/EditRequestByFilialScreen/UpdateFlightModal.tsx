@@ -100,10 +100,15 @@ export const UpdateFlightModal = (props: ModalProps) => {
         const idAirportArrival = airports?.find((airport: AirportModel) => airport.name === airportArrivalModal)?.id;
         const idAirportDeparture = airports?.find((airport: AirportModel) => airport.name === airportDepartureModal)?.id;
         const idWorkType = workTypes?.find((workType: WorkTypeModel) => workType.name === workTypeModal)?.id;
+        const respEmp = employeeResponsible?.find((emp: EmployeeResponsibleModel) => emp.fio === empRespModal);
+        if (respEmp === undefined) {
+            console.log('Not Finded')
+        }
         if (idAirportArrival && idAirportDeparture && idWorkType) {
             updateFlightFilial({
                 id: props.rowData.id,
                 idWorkType,
+                idEmpResp: respEmp?.id,
                 idRoute: props.rowData.routeId,
                 flyDate: flightDateModal,
                 idAirportArrival,

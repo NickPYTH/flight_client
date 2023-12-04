@@ -1,11 +1,11 @@
 import {createSlice} from "@reduxjs/toolkit";
 
 interface UserState {
-
+    filials: any[]
 }
 
 const initialState: UserState = {
-
+    filials: []
 }
 
 export const userSlice = createSlice({
