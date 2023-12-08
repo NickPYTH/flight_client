@@ -34,6 +34,8 @@ export type RequestRoutesGridType = {
     cargoWeightOut: string,
     routeId: string,
     id: string,
+    idFlightFilial: string,
+    idFuelPoint: string
 }
 
 export type RequestData = {
@@ -61,4 +63,23 @@ export type RequestData = {
     stateName: string,
     year: string,
     routes: RequestRoutesGridType[]
+}
+
+export type UpdateRequest = {
+    id: string,
+    field: string,
+    value?: string,
+    dateStart?: string,
+    dateFinish?: string,
+    aircraftModelId?: string;
+}
+
+export type RequestHistoryGridType = {
+    id: string,
+    employee: string,
+    date: string,
+    field: string,
+    newValue: string,
+    oldValue: string,
+    action: string,
 }

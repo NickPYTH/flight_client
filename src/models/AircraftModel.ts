@@ -1,5 +1,8 @@
 export interface AircraftModel {
-    id: number;
-    name: string;
+    aircraftModelId: string;
+    aircraftModelName: string;
+    contractName: string;
+    airlineName: string;
     idType: string;
+    idContractData: string;
 }

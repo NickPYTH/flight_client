@@ -11,8 +11,8 @@ import {RequestRoutesGridType} from "./RequestsFilials.types";
 //@ts-ignore
 import {Column, DateColumn, ExtTreegroupedgrid, Grid} from '@sencha/ext-react-modern';
 import {Ext} from "../../index";
-import {CreateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilialScreen/CreateFlightModal";
-import {UpdateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilialScreen/UpdateFlightModal";
+import {CreateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilials/CreateFlightModal";
+import {UpdateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilials/UpdateFlightModal";
 
 const {Text} = Typography;
 
@@ -310,7 +310,7 @@ export const EditRequestByFilialsScreen = () => {
                                 columnLines
                                 grouped
                                 shadow={false}
-                                groupHeaderTpl='{name} ({group.length})'
+
                                 groupSummaryPosition={'docked'}
                                 summaryPosition={'docked'}
                                 onChilddoubletap={(event: any) => {

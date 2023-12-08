@@ -10,6 +10,8 @@ import {requestAPI} from "../services/RequestService";
 import {aircraftModelAPI} from "../services/AircraftModelService";
 import {flightTargetAPI} from "../services/FlightTargetService";
 import {empCustomerAPI} from "../services/EmpCustomerService";
+import {flightPlanAPI} from "../services/FlightPlanService";
+import {fileStorageAPI} from "../services/FileStorageService";
 
 const rootReducer = combineReducers({
     userReducer,
@@ -23,6 +25,8 @@ const rootReducer = combineReducers({
     [aircraftModelAPI.reducerPath]: aircraftModelAPI.reducer,
     [flightTargetAPI.reducerPath]: flightTargetAPI.reducer,
     [empCustomerAPI.reducerPath]: empCustomerAPI.reducer,
+    [flightPlanAPI.reducerPath]: flightPlanAPI.reducer,
+    [fileStorageAPI.reducerPath]: fileStorageAPI.reducer,
 })
 
 export const setupStore = () => {
@@ -40,6 +44,8 @@ export const setupStore = () => {
                 .concat(aircraftModelAPI.middleware)
                 .concat(flightTargetAPI.middleware)
                 .concat(empCustomerAPI.middleware)
+                .concat(flightPlanAPI.middleware)
+                .concat(fileStorageAPI.middleware)
     })
 }
 
