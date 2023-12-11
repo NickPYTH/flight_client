@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {RangeValue} from 'rc-picker/lib/interface'
 import dayjs, {Dayjs} from "dayjs";
-import {Button, Collapse, DatePicker, Divider, Flex, Form, Select, Spin, Typography} from "antd";
+import {Button, Collapse, DatePicker, Divider, Flex, Form, InputNumber, Select, Spin, Typography} from "antd";
 import {HistoryOutlined, RedoOutlined, RollbackOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
@@ -41,6 +41,11 @@ export const EditRequestScreen = () => {
     const [flightTarget, setFlightTarget] = useState<string>('');
     const [empCustomer, setEmpCustomer] = useState<string>('');
     const [visibleHistoryModal, setVisibleHistoryModal] = useState<boolean>(false);
+    const [flightDuration, setFlightDuration] = useState<number>(0);
+    const [flightDurationOut, setFlightDurationOut] = useState<number>(0);
+    const [cost, setCost] = useState<number>(0);
+    const [costOut, setCostOut] = useState<number>(0);
+    const [roundDigit, setRoundDigit] = useState<number>(2);
     // -----
 
     // Useful utils
@@ -91,6 +96,12 @@ export const EditRequestScreen = () => {
     }, []);
     useEffect(() => {
         if (requestData) {
+            console.log(requestData)
+            setRoundDigit(requestData.roundDigit);
+            setCost(requestData.cost ?? 0);
+            setCostOut(requestData.cost ?? 0);
+            setFlightDuration(requestData.duration ?? 0);
+            setFlightDurationOut(requestData.durationOut ?? 0);
             setRequestId(requestData.id);
             setGridData(requestData?.routes.map((route) => (
                 {
@@ -174,6 +185,54 @@ export const EditRequestScreen = () => {
             idEmpCustomer: option.value,
         });
         setEmpCustomer(value);
+    }
+    const setFlightDurationHandler = (value: number | null) => {
+        if (value) {
+            setFlightDuration(value);
+            updateFieldRequest({
+                id: requestId,
+                field: "flightDuration",
+                value: value,
+            });
+        }
+    }
+    const setFlightDurationOutHandler = (value: number | null) => {
+        if (value) {
+            setFlightDurationOut(value);
+            updateFieldRequest({
+                id: requestId,
+                field: "flightDurationOut",
+                value: value,
+            });
+        }
+    }
+    const setRoundDigitHandler = (value: number, option: any) => {
+        setRoundDigit(option.value);
+        updateFieldRequest({
+            id: requestId,
+            field: "roundDigit",
+            value: value,
+        });
+    }
+    const setCostHandler = (value: number | null) => {
+        if (value) {
+            setCost(value);
+            updateFieldRequest({
+                id: requestId,
+                field: "cost",
+                value: value,
+            });
+        }
+    }
+    const setCostOutHandler = (value: number | null) => {
+        if (value) {
+            setCostOut(value);
+            updateFieldRequest({
+                id: requestId,
+                field: "costOut",
+                value: value,
+            });
+        }
     }
     // -----
     return (
@@ -291,159 +350,61 @@ export const EditRequestScreen = () => {
                                 key: '0',
                                 label: 'Затраты',
                                 children: <>
-                                    <Flex wrap="wrap" gap="large" justify={justifyOptions.flexStart}
-                                          style={{margin: "0px 0px 15px 0px"}}>
-                                        <Form style={{maxWidth: 600}}>
+                                    <Flex wrap="wrap" gap="large" justify={justifyOptions.flexStart} >
+                                        <Form labelCol={{span: 9}} wrapperCol={{span: 8}}>
                                             <Form.Item label="Время полета">
-                                                <Select
-                                                    value={aircraftModel}
-                                                    disabled={isAircraftModelLoading}
-                                                    size={'middle'}
-                                                    placeholder="Воздушное судно"
-                                                    loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
-                                                />
+                                                <InputNumber style={{width: 200}} value={flightDuration}
+                                                             onChange={setFlightDurationHandler}/>
                                             </Form.Item>
-                                            <Form.Item label="Воздушное судно">
-                                                <Select
-                                                    value={aircraftModel}
-                                                    disabled={isAircraftModelLoading}
-                                                    size={'middle'}
-                                                    placeholder="Налет в долях, ч"
-                                                    loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
-                                                />
+                                            <Form.Item label="Налет в долях, ч">
+                                                <InputNumber style={{width: 200}} value={flightDurationOut}
+                                                             onChange={setFlightDurationOutHandler}/>
                                             </Form.Item>
                                             <Form.Item label="Итого">
-                                                <Select
-                                                    value={aircraftModel}
-                                                    disabled={isAircraftModelLoading}
-                                                    size={'middle'}
-                                                    placeholder="Воздушное судно"
-                                                    loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
-                                                />
+                                                <InputNumber style={{width: 200}} value={costOut}
+                                                             onChange={setCostOutHandler}/>
                                             </Form.Item>
                                         </Form>
-                                        <Form style={{maxWidth: 600}}>
-                                            <Form.Item label="Время полета (с подвеской)">
-                                                <Select
-                                                    value={aircraftModel}
-                                                    disabled={isAircraftModelLoading}
-                                                    size={'middle'}
-                                                    placeholder="Воздушное судно"
-                                                    loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
-                                                />
-                                            </Form.Item>
-                                            <Form.Item label="Налет в долях, ч (с подвеской)">
-                                                <Select
-                                                    value={aircraftModel}
-                                                    disabled={isAircraftModelLoading}
-                                                    size={'middle'}
-                                                    placeholder="В т.ч. к оплате (с подвеской)"
-                                                    loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
-                                                />
-                                            </Form.Item>
-                                            <Form.Item label="В т.ч. к оплате (с подвеской)">
-                                                <Select
-                                                    value={aircraftModel}
-                                                    disabled={isAircraftModelLoading}
-                                                    size={'middle'}
-                                                    placeholder="Воздушное судно"
-                                                    loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
-                                                />
-                                            </Form.Item>
-                                        </Form>
-                                        <Form style={{maxWidth: 600}}>
+                                        {/*<Form labelCol={{span: 12}} wrapperCol={{span: 8}}>*/}
+                                        {/*    <Form.Item label="Время полета (с подвеской)">*/}
+                                        {/*        <InputNumber style={{width: 200}} value={flightDuration}*/}
+                                        {/*                     onChange={setFlightDurationHandler}/>*/}
+                                        {/*    </Form.Item>*/}
+                                        {/*    <Form.Item label="Налет в долях, ч (с подвеской)">*/}
+                                        {/*        <InputNumber style={{width: 200}} value={flightDuration}*/}
+                                        {/*                     onChange={setFlightDurationHandler}/>*/}
+                                        {/*    </Form.Item>*/}
+                                        {/*    <Form.Item label="В т.ч. к оплате (с подвеской)">*/}
+                                        {/*        <InputNumber style={{width: 200}} value={flightDuration}*/}
+                                        {/*                     onChange={setFlightDurationHandler}/>*/}
+                                        {/*    </Form.Item>*/}
+                                        {/*</Form>*/}
+                                        <Form labelCol={{span: 9}} wrapperCol={{span: 8}}>
                                             <Form.Item label="Стоимость">
-                                                <Select
-                                                    value={aircraftModel}
-                                                    disabled={isAircraftModelLoading}
-                                                    size={'middle'}
-                                                    placeholder="Воздушное судно"
-                                                    loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
-                                                />
+                                                <InputNumber style={{width: 200}} value={cost}
+                                                             onChange={setCostHandler}/>
                                             </Form.Item>
                                             <Form.Item label="Округлить до">
                                                 <Select
-                                                    value={aircraftModel}
+                                                    value={roundDigit}
                                                     disabled={isAircraftModelLoading}
                                                     size={'middle'}
                                                     placeholder="В т.ч. к оплате (с подвеской)"
                                                     loading={isFilialsLoading}
-                                                    style={{width: '100%'}}
-                                                    options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                        value: string,
-                                                        label: string
-                                                    } => ({
-                                                        value: aircraftModel.idContractData.toString(),
-                                                        label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                                    }))}
-                                                    onSelect={selectAircraftModelHandler}
+                                                    style={{width: 200}}
+                                                    options={[{
+                                                        value: 2,
+                                                        label: '2 знаков'
+                                                    }, {
+                                                        value: 3,
+                                                        label: '3 знаков'
+                                                    }]}
+                                                    onSelect={setRoundDigitHandler}
                                                 />
                                             </Form.Item>
                                         </Form>
                                     </Flex>
+                                    <Button style={{marginBottom: 10}}>Добавить</Button>
                                     {Ext.isDomReady &&
                                         <ExtTreegroupedgrid
                                             collapse={false}

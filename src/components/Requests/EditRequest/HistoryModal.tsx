@@ -51,10 +51,6 @@ export const HistoryModal = (props: ModalProps) => {
                 bordered={true}
                 size={'small'}
                 pagination={{pageSizeOptions: ['10', '15', '20', '25']}}
-                expandable={{
-                    expandedRowRender: (record) => <p style={{margin: 0}}>{record.field}</p>,
-                    rowExpandable: (record) => record.field === 'flightPlan',
-                }}
                 columns={[
                     {
                         title: 'Дата изменения',
