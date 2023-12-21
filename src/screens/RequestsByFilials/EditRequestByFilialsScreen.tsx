@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Button, Divider, Flex, message, Modal, Select, Spin, Tag, Typography, Upload, UploadProps} from "antd";
+import {Button, Collapse, Divider, Flex, message, Modal, Select, Spin, Typography, Upload, UploadProps} from "antd";
 import {FilialModel} from "../../models/FilialModel";
-import {PrinterOutlined, RedoOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
+import {LogoutOutlined, RedoOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {alignOptions, justifyOptions} from "../../configs/constants";
@@ -143,17 +143,17 @@ export const EditRequestByFilialsScreen = () => {
             setFileId(requestData.idRequestFile);
             setGridData(requestData?.routes.map((route) => (
                 {
-                    "dateTime": route.dateTime,
-                    "cargoWeightOut": route.cargoWeightOut,
-                    "cargoWeightMount": route.cargoWeightMount,
-                    "routeId": route.routeId,
-                    "passengerCount": route.passengerCount,
-                    "workType": route.workType,
-                    "airportDeparture": route.airportDeparture,
-                    "cargoWeightIn": route.cargoWeightIn,
-                    "id": route.id,
-                    "employee": route.employee,
-                    "airportArrival": route.airportArrival
+                    dateTime: route.dateTime,
+                    cargoWeightOut: route.cargoWeightOut,
+                    cargoWeightMount: route.cargoWeightMount,
+                    routeId: route.routeId,
+                    passengerCount: route.passengerCount,
+                    workType: route.workType,
+                    airportDeparture: route.airportDeparture,
+                    cargoWeightIn: route.cargoWeightIn,
+                    id: route.id,
+                    employee: route.employee,
+                    airportArrival: route.airportArrival
                 }
             )));
         }
@@ -176,7 +176,7 @@ export const EditRequestByFilialsScreen = () => {
     useEffect(() => {
         //@ts-ignore
         document?.body?.querySelectorAll("ext-treegroupedgrid")[0]?.cmp?.expandAll();
-    }, [updateFlightModalVisible]);
+    }, [createFlightModalVisible, updateFlightModalVisible]);
     // Handlers
     const backBtnHandler = () => {
         return navigate(`/requestsFilials`);
@@ -211,12 +211,14 @@ export const EditRequestByFilialsScreen = () => {
                     </Flex> :
                     <>
                         <Flex justify={justifyOptions.flexStart}>
-                            <Flex gap="small" vertical style={{margin: "5px 34px 0 17px"}}>
+                            <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
                                 <Flex gap="middle" style={{margin: "0 0 7px 0"}}>
                                     <Button size={'large'} onClick={backBtnHandler} icon={<RollbackOutlined/>}/>
+                                    <Button size={'large'} icon={<LogoutOutlined/>}/>
                                     <Button size={'large'} onClick={refresh} icon={<RedoOutlined/>}/>
-                                    <Button size={'large'} icon={<PrinterOutlined/>}/>
                                 </Flex>
+                                <Text>Код заявки <strong>{requestId}</strong></Text>
+                                <Text><strong>{requestData.nameState}</strong></Text>
                                 {requestData.nameState === 'Создано' &&
                                     <Button size={'middle'} onClick={() => {
                                         Modal.confirm({
@@ -231,7 +233,7 @@ export const EditRequestByFilialsScreen = () => {
                                                 </>
                                             ),
                                         });
-                                    }}>Отправить на согласование</Button>
+                                    }}>На согласование</Button>
                                 }
                                 {requestData.nameState === 'На согласовании' &&
                                     <>
@@ -265,12 +267,10 @@ export const EditRequestByFilialsScreen = () => {
                                         }}>Отклонить</Button>
                                     </>
                                 }
-                                <Button disabled={requestData.nameState === 'Создано'} size={'middle'}>Создать
-                                    заявку</Button>
                             </Flex>
+                            <Divider type={'vertical'}
+                                     style={{height: requestData.nameState === 'Создано' ? 160 : requestData.nameState === 'Утверждено' || requestData.nameState === 'Отклонено' ? 120 : 200}}/>
                             <Flex gap="small" vertical>
-                                <Text>Код заявки <strong>{requestId}</strong></Text>
-                                <Text>Статус заявки <Tag color="blue">{requestData.nameState}</Tag></Text>
                                 <Select
                                     disabled={requestData.nameState === 'Утверждено'}
                                     size={'middle'}
@@ -284,7 +284,7 @@ export const EditRequestByFilialsScreen = () => {
                                     } => ({value: filial.id.toString(), label: filial.name}))}
                                     onSelect={(value) => setFilialId(value)}
                                 />
-                                <Upload  {...propsFile}>
+                                <Upload  {...propsFile} >
                                     <Button disabled={fileUploading || requestData.nameState === 'Утверждено'}
                                             size={'middle'} style={{width: 330}}
                                             icon={<UploadOutlined/>}>Обновить файл
@@ -293,119 +293,127 @@ export const EditRequestByFilialsScreen = () => {
                                 </Upload>
                             </Flex>
                         </Flex>
-                        <Divider/>
-                        <Flex wrap="wrap" gap="small" justify={justifyOptions.flexStart}
-                              style={{margin: "5px 0px 0 17px"}}>
-                            <Button disabled={requestData.nameState === 'Утверждено'} size={'middle'}
-                                    style={{width: 230}}
-                                    onClick={() => setCreateFlightModalVisible(true)}>Добавить
-                                маршрут</Button>
-                        </Flex>
-                        {Ext.isDomReady &&
-                            <ExtTreegroupedgrid
-                                collapse={false}
-                                ref={gridRef}
-                                style={{height: window.innerHeight - 325}}
-                                store={store}
-                                columnLines
-                                grouped
-                                shadow={false}
+                        <Collapse defaultActiveKey={['0']} items={[
+                            {
+                                key: '0',
+                                label: 'Плановые полеты',
+                                children:
+                                    <>
+                                        <Flex wrap="wrap" gap="small" justify={justifyOptions.flexStart}
+                                              style={{margin: "0 0 15px 0"}}>
+                                            <Button disabled={requestData.nameState === 'Утверждено'} size={'middle'}
+                                                    style={{width: 152}}
+                                                    onClick={() => setCreateFlightModalVisible(true)}>Добавить
+                                                маршрут</Button>
+                                        </Flex>
 
-                                groupSummaryPosition={'docked'}
-                                summaryPosition={'docked'}
-                                onChilddoubletap={(event: any) => {
-                                    if (requestData.nameState !== 'Утверждено')
-                                        setSelectedRecord(event.location.record.data);
-                                }}
-                                columns={[
-                                    {
-                                        text: 'Вид работ',
-                                        dataIndex: 'workType',
-                                        groupable: true,
-                                        filterType: 'string',
-                                        flex: 1,
-                                        hidden: true
-                                    },
-                                    {
-                                        text: 'Ответсвенный',
-                                        dataIndex: 'employee',
-                                        groupable: true,
-                                        filterType: 'string',
-                                        width: 200,
-                                        hidden: true
-                                    },
-                                    {
-                                        text: 'Дата и время вылета',
-                                        dataIndex: 'dateTime',
-                                        groupable: true,
-                                        filterType: 'date',
-                                        flex: 1
-                                    },
-                                    {
-                                        text: 'Аэропорт вылета',
-                                        dataIndex: 'airportDeparture',
-                                        groupable: true,
-                                        filterType: 'string',
-                                        flex: 1
-                                    },
-                                    {
-                                        text: 'Аэропорт назначения',
-                                        dataIndex: 'airportArrival',
-                                        groupable: true,
-                                        filterType: 'string',
-                                        flex: 1
-                                    },
-                                    {
-                                        text: 'Аэропорт назначения',
-                                        dataIndex: 'airportArrival',
-                                        groupable: true,
-                                        filterType: 'string',
-                                        flex: 1
-                                    },
-                                    {
-                                        text: 'Кол-во пассажиров',
-                                        dataIndex: 'passengerCount',
-                                        xtype: 'numbercolumn',
-                                        align: 'center',
-                                        filterType: 'number',
-                                        flex: 1
-                                    },
-                                    {
-                                        text: 'Груз всего, тонн',
-                                        dataIndex: 'cargoWeightMount',
-                                        xtype: 'numbercolumn',
-                                        align: 'center',
-                                        filterType: 'number',
-                                        flex: 1
-                                    },
-                                    {
-                                        text: 'Груз на внешней подвеске, тонн',
-                                        dataIndex: 'cargoWeightOut',
-                                        xtype: 'numbercolumn',
-                                        align: 'center',
-                                        filterType: 'number',
-                                        flex: 1
-                                    },
-                                    {
-                                        text: 'Груз внутри фюзеляжа, тонн',
-                                        dataIndex: 'cargoWeightIn',
-                                        xtype: 'numbercolumn',
-                                        align: 'center',
-                                        filterType: 'number',
-                                        flex: 1
-                                    },
-                                ]}
-                                platformConfig={{
-                                    desktop: {
-                                        plugins: {
-                                            groupingpanel: true,
-                                            gridfilterbar: true
+                                        {Ext.isDomReady &&
+                                            <ExtTreegroupedgrid
+                                                collapse={false}
+                                                ref={gridRef}
+                                                style={{height: window.innerHeight - 325}}
+                                                store={store}
+                                                columnLines
+                                                grouped
+                                                shadow={false}
+
+                                                groupSummaryPosition={'docked'}
+                                                summaryPosition={'docked'}
+                                                onChilddoubletap={(event: any) => {
+                                                    if (requestData.nameState !== 'Утверждено')
+                                                        setSelectedRecord(event.location.record.data);
+                                                }}
+                                                columns={[
+                                                    {
+                                                        text: 'Вид работ',
+                                                        dataIndex: 'workType',
+                                                        groupable: true,
+                                                        filterType: 'string',
+                                                        flex: 1,
+                                                        hidden: true
+                                                    },
+                                                    {
+                                                        text: 'Ответсвенный',
+                                                        dataIndex: 'employee',
+                                                        groupable: true,
+                                                        filterType: 'string',
+                                                        width: 200,
+                                                        hidden: true
+                                                    },
+                                                    {
+                                                        text: 'Дата и время вылета',
+                                                        dataIndex: 'dateTime',
+                                                        groupable: true,
+                                                        filterType: 'date',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Аэропорт вылета',
+                                                        dataIndex: 'airportDeparture',
+                                                        groupable: true,
+                                                        filterType: 'string',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Аэропорт назначения',
+                                                        dataIndex: 'airportArrival',
+                                                        groupable: true,
+                                                        filterType: 'string',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Аэропорт назначения',
+                                                        dataIndex: 'airportArrival',
+                                                        groupable: true,
+                                                        filterType: 'string',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Кол-во пассажиров',
+                                                        dataIndex: 'passengerCount',
+                                                        xtype: 'numbercolumn',
+                                                        align: 'center',
+                                                        filterType: 'number',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Груз всего, тонн',
+                                                        dataIndex: 'cargoWeightMount',
+                                                        xtype: 'numbercolumn',
+                                                        align: 'center',
+                                                        filterType: 'number',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Груз на внешней подвеске, тонн',
+                                                        dataIndex: 'cargoWeightOut',
+                                                        xtype: 'numbercolumn',
+                                                        align: 'center',
+                                                        filterType: 'number',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Груз внутри фюзеляжа, тонн',
+                                                        dataIndex: 'cargoWeightIn',
+                                                        xtype: 'numbercolumn',
+                                                        align: 'center',
+                                                        filterType: 'number',
+                                                        flex: 1
+                                                    },
+                                                ]}
+                                                platformConfig={{
+                                                    desktop: {
+                                                        plugins: {
+                                                            groupingpanel: true,
+                                                            gridfilterbar: true
+                                                        }
+                                                    },
+                                                }}
+                                            >
+                                            </ExtTreegroupedgrid>
                                         }
-                                    },
-                                }}
-                            >
-                            </ExtTreegroupedgrid>
-                        }
+                                    </>
+                            }]}/>
                     </>
                 }
             </Flex>

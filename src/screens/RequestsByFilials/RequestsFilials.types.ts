@@ -7,10 +7,14 @@ export type RequestsByFilialsGridType = {
 
 export type RequestRoutesGridType = {
     workType: string,
+    workTypeId?: number | undefined,
     employee: string,
+    employeeId?: number | undefined,
     dateTime: string,
     airportDeparture: string,
+    airportDepartureId?: number | undefined,
     airportArrival: string,
+    airportArrivalId?: number | undefined,
     passengerCount: string,
     cargoWeightMount: string,
     cargoWeightIn: string,
@@ -29,4 +33,11 @@ export type RequestData = {
     createDate: string,
     rejectNote: string,
     routes: RequestRoutesGridType[]
+}
+
+export type CreateRequestFilialType = {
+    idFilial: string,
+    fileName?: string,
+    file?: string,
+    routes: RequestRoutesGridType[],
 }

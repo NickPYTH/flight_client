@@ -79,11 +79,6 @@ export const FileUploadDND = (props: any) => {
     }, [getFilesData]);
     return (
         <Dragger {...propsFile}>
-            <p className="ant-upload-drag-icon">
-                <FileWordOutlined size={1}/>
-                <FileExcelOutlined/>
-                <FilePdfOutlined/>
-            </p>
             <p style={{padding: '0 10px 0 10px'}} className="ant-upload-text">Нажмите или перетащите файлы в эту
                 область, чтобы загрузить</p>
         </Dragger>

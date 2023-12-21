@@ -1,6 +1,7 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/dist/query/react";
 import {host, port, secure} from "../configs/url.config";
 import {
+    CreateRequestFilialType,
     RequestData,
     RequestRoutesGridType,
     RequestsByFilialsGridType
@@ -45,6 +46,14 @@ export const requestsByFilialsAPI = createApi({
             query: (id) => ({
                 url: `/decline?flightRequestId=${id}`,
                 method: 'POST',
+            }),
+            invalidatesTags: ['RequestsByFilials']
+        }),
+        create: build.mutation<{id: string}, CreateRequestFilialType>({
+            query: (body) => ({
+                url: `/create`,
+                method: 'POST',
+                body
             }),
             invalidatesTags: ['RequestsByFilials']
         }),

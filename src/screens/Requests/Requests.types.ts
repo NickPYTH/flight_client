@@ -62,7 +62,8 @@ export type RequestData = {
     roundDigit: number,
     stateName: string,
     year: string,
-    routes: RequestRoutesGridType[]
+    routes: RequestRoutesGridType[],
+    factRoutes: RequestRoutesGridType[]
 }
 
 export type UpdateRequest = {
@@ -83,3 +84,23 @@ export type RequestHistoryGridType = {
     oldValue: string,
     action: string,
 }
+
+export type CostRequest = {
+    requestId: string,
+    filialId: string,
+    workTypeId: string,
+    duration: number,
+    cost: number,
+    costId: string
+}
+
+export type CostGridType = {
+    requestId: string,
+    id: string,
+    filialName: string,
+    workTypeName: string,
+    duration: string,
+    cost: string,
+}
+
+

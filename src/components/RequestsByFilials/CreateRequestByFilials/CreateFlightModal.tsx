@@ -15,9 +15,6 @@ type ModalProps = {
 }
 export const CreateFlightModal = (props: ModalProps) => {
     // States
-    const [requestId] = useState<string>(() => {
-        return window.location.pathname.split("/")[2]
-    });
     const [empRespOptions, setEmpRespOptions] = useState<{ value: string }[]>([]);
     const [workTypeOptions, setWorkTypeOptions] = useState<{ value: string }[]>([]);
     const [airportsOptions, setAirportsOptions] = useState<{ value: string }[]>([]);
@@ -104,10 +101,14 @@ export const CreateFlightModal = (props: ModalProps) => {
                         id: "",
                         routeId: "",
                         workType: workTypeModal,
+                        workTypeId: workType?.id,
                         employee: empRespModal,
+                        employeeId: respEmp?.id,
                         dateTime: flightDateModal?.format('YYYY-MM-DD'),
                         airportDeparture: airportDepartureModal,
+                        airportDepartureId: airportDeparture?.id,
                         airportArrival: airportArrivalModal,
+                        airportArrivalId: airportArrival?.id,
                         passengerCount: passengerCountModal.toString(),
                         cargoWeightMount: cargoWeightMount.toString(),
                         cargoWeightIn: cargoWeighIn.toString(),

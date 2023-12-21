@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import "@sencha/best-react-grid/dist/themes/grui.css";
-import {Button, Flex, Select} from "antd";
+import {Button, Flex, Select, Typography} from "antd";
 import {justifyOptions, YEARS} from "../../configs/constants";
 import {requestsByFilialsAPI} from "../../services/RequestFilialService";
 import {RequestsByFilialsGridType} from "./RequestsFilials.types";
@@ -9,6 +9,8 @@ import {useNavigate} from "react-router-dom";
 //@ts-ignore
 import {ExtTreegroupedgrid} from '@sencha/ext-react-modern';
 import {Ext} from "../../index";
+
+const { Text } = Typography;
 
 export const AllRequestsByFilialsScreen = () => {
     let navigate = useNavigate();
@@ -46,7 +48,10 @@ export const AllRequestsByFilialsScreen = () => {
     return (
         <Flex gap="small" vertical>
             <Navbar/>
-            <Flex style={{margin: "0 5px 0 5px"}} gap={"small"} vertical={false} justify={justifyOptions.spaceBetween}>
+            <Flex justify={justifyOptions.center}>
+                <Text style={{fontSize: 22, fontWeight: 500}}>Заявки на выполнение полетов</Text>
+            </Flex>
+            <Flex style={{margin: "0 5px 0 5px"}} gap={"small"} justify={justifyOptions.spaceBetween}>
                 <Button onClick={addBtnHandler}>Добавить</Button>
                 <Select
                     disabled={isLoadingGetAllRequestByFilials}

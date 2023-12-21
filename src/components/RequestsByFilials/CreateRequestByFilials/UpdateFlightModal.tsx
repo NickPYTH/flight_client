@@ -3,7 +3,6 @@ import React, {useEffect, useState} from "react";
 import {WorkTypeModel} from "../../../models/WorkTypeModel";
 import {EmployeeResponsibleModel} from "../../../models/EmployeeResponsibleModel";
 import {AirportModel} from "../../../models/AirportModel";
-import {flightFilialAPI} from "../../../services/FlightFilialService";
 import {workTypesAPI} from "../../../services/WorkTypesService";
 import {airportsAPI} from "../../../services/AirportsService";
 import {employeeResponsibleAPI} from "../../../services/EmployeeResponsibleService";
@@ -34,11 +33,6 @@ export const UpdateFlightModal = (props: ModalProps) => {
     // -----
 
     // Web requests
-    const [updateFlightFilial, {
-        data: updateFlightFilialData,
-        isLoading: isLoadingUpdateFilial,
-        isError: isErrorUpdateFilial,
-    }] = flightFilialAPI.useUpdateMutation();
     const [getAllWorkTypesRequest, {
         data: workTypes,
         isLoading: isWorkTypesLoading,
@@ -78,11 +72,6 @@ export const UpdateFlightModal = (props: ModalProps) => {
         if (airports)
             setAirportsOptions(airports.map((airport: AirportModel) => ({value: airport.name})));
     }, [airports]);
-    useEffect(() => {
-        if (updateFlightFilialData) {
-            closeUpdateRouteModalHandler();
-        }
-    }, [updateFlightFilialData]);
     // -----
 
     // Handlers
@@ -92,22 +81,24 @@ export const UpdateFlightModal = (props: ModalProps) => {
         const idWorkType = workTypes?.find((workType: WorkTypeModel) => workType.name === workTypeModal)?.id;
         if (idAirportArrival && idAirportDeparture && idWorkType) {
             props.setGridData((prev: RequestRoutesGridType[]) => {
-                let record: RequestRoutesGridType = {
-                    id: "",
-                    routeId: "",
-                    workType: workTypeModal,
-                    employee: empRespModal,
-                    dateTime: flightDateModal, //?.format('YYYY-MM-DD')
-                    airportDeparture: airportDepartureModal,
-                    airportArrival: airportArrivalModal,
-                    passengerCount: passengerCountModal.toString(),
-                    cargoWeightMount: cargoWeightMount.toString(),
-                    cargoWeightIn: cargoWeighIn.toString(),
-                    cargoWeightOut: cargoWeightOut.toString(),
-                }
-                return prev.concat(record);
+                let prevCopy = JSON.parse(JSON.stringify(prev));
+                return prevCopy.map((record: RequestRoutesGridType) => {
+                    if (record.id === props.rowData.id) {
+                        record.workType = workTypeModal
+                        record.employee = empRespModal
+                        record.dateTime = flightDateModal
+                        record.airportDeparture = airportDepartureModal
+                        record.airportArrival = airportArrivalModal
+                        record.passengerCount = passengerCountModal.toString()
+                        record.cargoWeightMount = cargoWeightMount.toString()
+                        record.cargoWeightIn = cargoWeighIn.toString()
+                        record.cargoWeightOut = cargoWeightOut.toString()
+                    }
+                    return record;
+                })
             })
         }
+        closeUpdateRouteModalHandler();
     }
     // -----
     const closeUpdateRouteModalHandler = () => {
@@ -118,10 +109,10 @@ export const UpdateFlightModal = (props: ModalProps) => {
         setFlightDateModal("");
         setAirportDepartureModal("");
         setAirportArrivalModal("");
-        setPassengerCountModal(-1);
-        setCargoWeightMount(-1);
-        setCargoWeightOut(-1);
-        setCargoWeighIn(-1);
+        setPassengerCountModal(0);
+        setCargoWeightMount(0);
+        setCargoWeightOut(0);
+        setCargoWeighIn(0);
     }
     const getEmpRespValue = (searchText: string) => {
         if (employeeResponsible) {

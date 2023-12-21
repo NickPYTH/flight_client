@@ -22,6 +22,8 @@ import {EmpCustomerModel} from "../../models/EmpCustomerModel";
 import {UpdateFlightModal} from "../../components/Requests/EditRequest/UpdateFlightModal";
 import {CreateFlightModal} from "../../components/Requests/EditRequest/CreateFlightModal";
 import {HistoryModal} from "../../components/Requests/EditRequest/HistoryModal";
+import {CostCreateModalData, CreateCostModal} from "../../components/Requests/EditRequest/CreateCostModal";
+import {EditCostModal} from "../../components/Requests/EditRequest/EditCostModal";
 
 const {Text} = Typography;
 const {RangePicker} = DatePicker;
@@ -31,7 +33,9 @@ export const EditRequestScreen = () => {
     // States
     const [requestId, setRequestId] = useState<string>("");
     const [gridData, setGridData] = useState<RequestRoutesGridType[]>([]);
+    const [gridFactData, setGridFactData] = useState<RequestRoutesGridType[]>([]);
     const [selectedRecord, setSelectedRecord] = useState<RequestRoutesGridType | null>(null);
+    const [selectedCostRecord, setSelectedCostRecord] = useState<CostCreateModalData | null>(null);
     const [createFlightModalVisible, setCreateFlightModalVisible] = useState<boolean>(false);
     const [updateFlightModalVisible, setUpdateFlightModalVisible] = useState<boolean>(false);
     const gridRef = useRef(null);
@@ -46,6 +50,8 @@ export const EditRequestScreen = () => {
     const [cost, setCost] = useState<number>(0);
     const [costOut, setCostOut] = useState<number>(0);
     const [roundDigit, setRoundDigit] = useState<number>(2);
+    const [visibleAddCostModal, setVisibleAddCostModal] = useState<boolean>(false);
+    const [visibleEditCostModal, setVisibleEditCostModal] = useState<boolean>(false);
     // -----
 
     // Useful utils
@@ -57,9 +63,16 @@ export const EditRequestScreen = () => {
             {name: 'employee', type: 'string'},
         ]
     })
+    let factStore = Ext.create('Ext.data.Store', {
+        data: gridFactData,
+        groupers: ['workType', 'employee'],
+        fields: [
+            {name: 'workType', type: 'string'},
+            {name: 'employee', type: 'string'},
+        ]
+    })
     let navigate = useNavigate();
     const location = useLocation();
-    const formItemLayout = {labelCol: {span: 6}, wrapperCol: {span: 20}};
     // -----
 
     // Web requests
@@ -84,6 +97,10 @@ export const EditRequestScreen = () => {
         isLoading: isEmpCustomerLoading,
     }] = empCustomerAPI.useGetAllMutation();
     const [updateFieldRequest, {}] = requestAPI.useUpdateDateMutation();
+    const [getAllCosts, {
+        data: costs,
+        isLoading: isCostsLoading,
+    }] = requestAPI.useGetCostsMutation();
     // -----
 
     // Effects
@@ -92,11 +109,11 @@ export const EditRequestScreen = () => {
         getAllFlightTargetRequest();
         getAllAircraftModelRequest();
         getAllFilialsRequest();
+        getAllCosts(location.pathname.split("/")[2]);
         getRequestById(location.pathname.split("/")[2]); // get ID from path location
     }, []);
     useEffect(() => {
         if (requestData) {
-            console.log(requestData)
             setRoundDigit(requestData.roundDigit);
             setCost(requestData.cost ?? 0);
             setCostOut(requestData.cost ?? 0);
@@ -120,9 +137,26 @@ export const EditRequestScreen = () => {
                     "idFuelPoint": ""
                 }
             )));
+            setGridFactData(requestData?.factRoutes.map((route) => (
+                {
+                    "dateTime": route.dateTime,
+                    "cargoWeightOut": route.cargoWeightOut,
+                    "cargoWeightMount": route.cargoWeightMount,
+                    "routeId": route.routeId,
+                    "passengerCount": route.passengerCount,
+                    "workType": route.workType,
+                    "airportDeparture": route.airportDeparture,
+                    "cargoWeightIn": route.cargoWeightIn,
+                    "id": route.id,
+                    "employee": route.employee,
+                    "airportArrival": route.airportArrival,
+                    "idFlightFilial": "",
+                    "idFuelPoint": ""
+                }
+            )));
             setFlyDateStart(dayjs(requestData.flyDateStart.slice(0, 19), dateFormat));
             setFlyDateFinish(dayjs(requestData.flyDateFinish.slice(0, 19), dateFormat));
-            setAircraftModel(`${requestData.aircraftModelName}/${requestData.airlineName}/${requestData.aircraftModelName}`);
+            setAircraftModel(`${requestData.aircraftModelName}/${requestData.airlineName}/${requestData.airlineName}`);
             setFlightTarget(requestData.flightTargetName);
             setEmpCustomer(requestData.empCustomerLastName + " " + requestData.empCustomerName + " " + requestData.empCustomerSecondName);
         }
@@ -240,12 +274,19 @@ export const EditRequestScreen = () => {
             {visibleHistoryModal &&
                 <HistoryModal visible={visibleHistoryModal} setVisible={setVisibleHistoryModal} requestId={requestId}/>
             }
-            <CreateFlightModal visible={createFlightModalVisible} setVisible={setCreateFlightModalVisible}
-                               refresh={getRequestById}/>
+            {visibleAddCostModal &&
+                <CreateFlightModal visible={createFlightModalVisible} setVisible={setCreateFlightModalVisible}
+                                   refresh={getRequestById}/>
+            }
             {selectedRecord &&
                 <UpdateFlightModal visible={updateFlightModalVisible} setVisible={setUpdateFlightModalVisible}
                                    refresh={getRequestById} rowData={selectedRecord} setRowData={setSelectedRecord}/>
             }
+            <CreateCostModal visible={visibleAddCostModal} setVisible={setVisibleAddCostModal} requestId={requestId}
+                             refresh={getAllCosts}/>
+            {selectedCostRecord &&
+                <EditCostModal visible={visibleEditCostModal} setVisible={setVisibleEditCostModal} requestId={requestId}
+                               refresh={getAllCosts} data={selectedCostRecord}/>}
             <Flex gap="small" vertical>
                 <Navbar/>
                 {(filials === undefined || requestData === undefined) ?
@@ -262,7 +303,6 @@ export const EditRequestScreen = () => {
                                             icon={<HistoryOutlined/>}/>
                                     <Button size={'large'} onClick={refresh} icon={<RedoOutlined/>}/>
                                 </Flex>
-                                {/*requestData.stateName*/}
                                 <Text><strong>На согласовании</strong></Text>
                                 <Text>Номер заявки <strong>{requestId}</strong></Text>
                                 <Text>Код заявки <strong>{requestId}</strong></Text>
@@ -345,12 +385,12 @@ export const EditRequestScreen = () => {
                                 }
                             </Flex>
                         </Flex>
-                        <Collapse items={[
+                        <Collapse defaultActiveKey={['1']} items={[
                             {
                                 key: '0',
                                 label: 'Затраты',
                                 children: <>
-                                    <Flex wrap="wrap" gap="large" justify={justifyOptions.flexStart} >
+                                    <Flex wrap="wrap" gap="large" justify={justifyOptions.flexStart}>
                                         <Form labelCol={{span: 9}} wrapperCol={{span: 8}}>
                                             <Form.Item label="Время полета">
                                                 <InputNumber style={{width: 200}} value={flightDuration}
@@ -404,9 +444,11 @@ export const EditRequestScreen = () => {
                                             </Form.Item>
                                         </Form>
                                     </Flex>
-                                    <Button style={{marginBottom: 10}}>Добавить</Button>
+                                    <Button style={{marginBottom: 10}}
+                                            onClick={() => setVisibleAddCostModal(true)}>Добавить</Button>
                                     {Ext.isDomReady &&
                                         <ExtTreegroupedgrid
+                                            data={costs}
                                             collapse={false}
                                             ref={gridRef}
                                             style={{height: 250}}
@@ -416,34 +458,40 @@ export const EditRequestScreen = () => {
                                             groupSummaryPosition={'docked'}
                                             summaryPosition={'docked'}
                                             onChilddoubletap={(event: any) => {
-                                                if (requestData.stateName !== 'Утверждено')
-                                                    setSelectedRecord(event.location.record.data);
+                                                setVisibleEditCostModal(true);
+                                                setSelectedCostRecord({
+                                                    selectedFilialId: event.location.record.data.filialId,
+                                                    selectedWorkType: event.location.record.data.workTypeId,
+                                                    flightDuration: event.location.record.data.duration,
+                                                    flightCost: event.location.record.data.cost,
+                                                    costId: event.location.record.data.costId
+                                                });
                                             }}
                                             columns={[
                                                 {
                                                     text: 'Филиал',
-                                                    dataIndex: 'workType',
+                                                    dataIndex: 'filialName',
                                                     groupable: true,
                                                     filterType: 'string',
                                                     flex: 1,
                                                 },
                                                 {
                                                     text: 'Вид работ',
-                                                    dataIndex: 'employee',
+                                                    dataIndex: 'workTypeName',
                                                     groupable: true,
                                                     filterType: 'string',
                                                     width: 200,
                                                 },
                                                 {
                                                     text: 'Налет (час)',
-                                                    dataIndex: 'dateTime',
+                                                    dataIndex: 'duration',
                                                     groupable: true,
                                                     filterType: 'date',
                                                     flex: 1
                                                 },
                                                 {
                                                     text: 'Затраты (руб.)',
-                                                    dataIndex: 'airportDeparture',
+                                                    dataIndex: 'cost',
                                                     groupable: true,
                                                     filterType: 'string',
                                                     flex: 1
@@ -453,7 +501,8 @@ export const EditRequestScreen = () => {
                                                     dataIndex: 'airportArrival',
                                                     groupable: true,
                                                     filterType: 'string',
-                                                    flex: 1
+                                                    flex: 1,
+                                                    hidden: true
                                                 },
                                             ]}
                                         >
@@ -594,7 +643,7 @@ export const EditRequestScreen = () => {
                                             collapse={false}
                                             ref={gridRef}
                                             style={{height: 440}}
-                                            store={store}
+                                            store={factStore}
                                             columnLines
                                             grouped
                                             shadow={false}
@@ -696,7 +745,7 @@ export const EditRequestScreen = () => {
                                     }
                                 </>,
                             },
-                        ]} defaultActiveKey={['1']}/>
+                        ]}/>
                     </>
                 }
             </Flex>

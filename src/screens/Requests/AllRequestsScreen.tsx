@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import "@sencha/best-react-grid/dist/themes/grui.css";
-import {Button, Flex, Select} from "antd";
+import {Button, Flex, Select, Typography} from "antd";
 import {justifyOptions, YEARS} from "../../configs/constants";
 import {RequestsGridType} from "./Requests.types";
 import {useNavigate} from "react-router-dom";
@@ -10,6 +10,7 @@ import {ExtTreegroupedgrid} from '@sencha/ext-react-modern';
 import {Ext} from "../../index";
 import {requestAPI} from "../../services/RequestService";
 
+const {Text} = Typography;
 export const AllRequestsScreen = () => {
     let navigate = useNavigate();
     const [data, setData] = useState<RequestsGridType[]>([]);
@@ -46,6 +47,9 @@ export const AllRequestsScreen = () => {
     return (
         <Flex gap="small" vertical>
             <Navbar/>
+            <Flex style={{margin: "0 0 0 8px"}} gap={"small"} justify={justifyOptions.center}>
+                <Text style={{fontSize: 22, fontWeight: 500}}>Заявки на выполнение полетов филиалы</Text>
+            </Flex>
             <Flex style={{margin: "0 5px 0 5px"}} gap={"small"} vertical={false} justify={justifyOptions.spaceBetween}>
                 <Button onClick={addBtnHandler}>Добавить</Button>
                 <Select
