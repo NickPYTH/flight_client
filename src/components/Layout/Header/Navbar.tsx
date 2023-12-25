@@ -11,15 +11,15 @@ const items: MenuProps['items'] = [
         key: 'requests',
         children: [
             {
-                label: 'Заявка на выполнение полетов',
+                label: 'Заявки на выполнение полетов',
                 key: 'requestTypeOne',
             },
             {
-                label: 'Заявка на выполнение полетов филиалы',
+                label: 'Заявки на выполнение полетов филиалы',
                 key: 'requestTypeTwo',
             },
             {
-                label: 'Заявка на выполнение полетов вертолетами',
+                label: 'Заявки на выполнение полетов вертолетами',
                 key: 'requestTypeThree',
             },
         ],
@@ -60,6 +60,12 @@ export const Navbar = (props: propsType) => {
             return navigate(`/requestsFilials`);
         } else if (e.key === "requestTypeTwo") {
             return navigate(`/requests`);
+        }
+        else if (e.key === "requestTypeThree") {
+            return navigate(`/requestsByHelicopter`);
+        }
+        else{
+            return navigate('/cosmos')
         }
     };
 

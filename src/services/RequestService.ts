@@ -68,5 +68,13 @@ export const requestAPI = createApi({
             }),
             invalidatesTags: ['Request']
         }),
+        create: build.mutation<any, any>({
+            query: (body) => ({
+                url: `/create`,
+                method: 'POST',
+                body
+            }),
+            invalidatesTags: ['Request']
+        }),
     })
 });

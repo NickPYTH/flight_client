@@ -274,7 +274,7 @@ export const EditRequestScreen = () => {
             {visibleHistoryModal &&
                 <HistoryModal visible={visibleHistoryModal} setVisible={setVisibleHistoryModal} requestId={requestId}/>
             }
-            {visibleAddCostModal &&
+            {createFlightModalVisible &&
                 <CreateFlightModal visible={createFlightModalVisible} setVisible={setCreateFlightModalVisible}
                                    refresh={getRequestById}/>
             }

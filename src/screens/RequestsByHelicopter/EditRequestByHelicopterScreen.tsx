@@ -1,43 +1,41 @@
 import React, {useEffect, useState} from "react";
-import {
-    Button,
-    Collapse,
-    Divider,
-    Flex,
-    message,
-    Modal,
-    Select,
-    Spin,
-    Tooltip,
-    Typography,
-    Upload,
-    UploadProps
-} from "antd";
-import {FilialModel} from "../../models/FilialModel";
-import {PlusOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
-import {filialsAPI} from "../../services/FilialsService";
+import {Button, Collapse, DatePicker, Divider, Flex, Modal, Select, Spin, Typography} from "antd";
+import {LogoutOutlined, RedoOutlined, RollbackOutlined} from "@ant-design/icons";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {alignOptions, justifyOptions} from "../../configs/constants";
-import {useNavigate} from "react-router-dom";
-import {CreateRequestFilialType, RequestRoutesGridType} from "./RequestsFilials.types";
+import {useLocation, useNavigate} from "react-router-dom";
+import {RangeValue} from 'rc-picker/lib/interface'
 //@ts-ignore
 import {Column, DateColumn, ExtTreegroupedgrid, Grid} from '@sencha/ext-react-modern';
 import {Ext} from "../../index";
-import {CreateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/CreateFlightModal";
-import {UpdateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/UpdateFlightModal";
-import {requestsByFilialsAPI} from "../../services/RequestFilialService";
+import {CreateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilials/CreateFlightModal";
+import {UpdateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilials/UpdateFlightModal";
+import {RequestRoutesGridType} from "./Requests.types";
+import {Dayjs} from "dayjs";
+import {airlinesAPI} from "../../services/AirlineService";
+import {AirlineModel} from "../../models/AirlineModel";
+import {requestHelicopterAPI} from "../../services/RequestHelicopterService";
+import {workTypesAPI} from "../../services/WorkTypesService";
+import {WorkTypeModel} from "../../models/WorkTypeModel";
+
+const {RangePicker} = DatePicker;
+const dateFormat = 'YYYY-MM-DD HH:mm:ss';
 
 const {Text} = Typography;
 
-export const CreateRequestByFilialsScreen = () => {
+export const EditRequestsByHelicopterScreen = () => {
     // States
-    const [messageApi, messageContextHolder] = message.useMessage();
-    const [selectedFilial, setSelectedFilial] = useState<string>("");
-    const [file, setFile] = useState<any | null>(null);
+    const [requestId, setRequestId] = useState<string>("");
+    const [statusId, setStatusId] = useState<string>("");
+    const [airline, setAirline] = useState<string>("");
+    const [workType, setWorkType] = useState<string>("");
     const [gridData, setGridData] = useState<RequestRoutesGridType[]>([]);
     const [selectedRecord, setSelectedRecord] = useState<RequestRoutesGridType | null>(null);
     const [createFlightModalVisible, setCreateFlightModalVisible] = useState<boolean>(false);
     const [updateFlightModalVisible, setUpdateFlightModalVisible] = useState<boolean>(false);
+    const [flyDateStart, setFlyDateStart] = useState<Dayjs | null>(null);
+    const [flyDateFinish, setFlyDateFinish] = useState<Dayjs | null>(null);
+    const [flightDate, setFlightDate] = useState<any>("");
     // -----
 
     // Useful utils
@@ -50,36 +48,53 @@ export const CreateRequestByFilialsScreen = () => {
         ]
     })
     let navigate = useNavigate();
-    const propsFile: UploadProps = {
-        maxCount: 1,
-        customRequest: (e: any) => {
-            setFile([e.file])
-        },
-        onRemove: () => {
-            setFile([]);
-        },
-        fileList: file,
-    }
-    const missingFilialMessage = () => {
-        messageApi.warning('Вы не выбрали филиал');
-    };
-    // -----
+    const location = useLocation();
+    //
 
     // Web requests
-    const [getAllFilialsRequest, {
-        data: filials,
-        isLoading: isFilialsLoading,
-    }] = filialsAPI.useGetAllMutation();
-    const [createRequestByFilial, {
-        data: requestResponse,
-        isLoading: isCreateRequestByFilialLoading,
-    }] = requestsByFilialsAPI.useCreateMutation();
+    const [getRequestById, {
+        data: requestData,
+        isLoading: isLoadingGetRequestById,
+    }] = requestHelicopterAPI.useGetByIdMutation();
+    const [getAllAirlinesRequest, {
+        data: airlines,
+        isLoading: isAirlinesLoading,
+    }] = airlinesAPI.useGetAllMutation();
+    const [getAllWorkTypesRequest, {
+        data: workTypes,
+        isLoading: isWorkTypesLoading,
+    }] = workTypesAPI.useGetAllMutation();
     // -----
 
     // Effects
     useEffect(() => {
-        getAllFilialsRequest();
+        getAllWorkTypesRequest();
+        getAllAirlinesRequest();
+        getRequestById(location.pathname.split("/")[2]); // get ID from path location
     }, []);
+    useEffect(() => {
+        if (requestData) {
+            setRequestId(requestData.id);
+            setAirline(requestData.airlineId);
+            setWorkType(requestData.workTypeId);
+            setStatusId(requestData.idState);
+            // setGridData(requestData?.routes.map((route) => (
+            //     {
+            //         dateTime: route.dateTime,
+            //         cargoWeightOut: route.cargoWeightOut,
+            //         cargoWeightMount: route.cargoWeightMount,
+            //         routeId: route.routeId,
+            //         passengerCount: route.passengerCount,
+            //         workType: route.workType,
+            //         airportDeparture: route.airportDeparture,
+            //         cargoWeightIn: route.cargoWeightIn,
+            //         id: route.id,
+            //         employee: route.employee,
+            //         airportArrival: route.airportArrival
+            //     }
+            // )));
+        }
+    }, [requestData]);
     useEffect(() => {
         if (selectedRecord !== null)
             setUpdateFlightModalVisible(true);
@@ -94,58 +109,42 @@ export const CreateRequestByFilialsScreen = () => {
         //@ts-ignore
         document?.body?.querySelectorAll("ext-treegroupedgrid")[0]?.cmp?.expandAll();
     }, [createFlightModalVisible, updateFlightModalVisible]);
-    useEffect(() => {
-        if (requestResponse) {
-            if (file) {
-                const formData = new FormData();
-                formData.append("fileName", file[0].name);
-                formData.append("idRequestFilial", requestResponse.id);
-                formData.append("fileBody", file[0]);
-                fetch('http://localhost:8080/flight/api/file/create', {
-                    method: 'POST',
-                    body: formData,
-                })
-                    .then((res) => {
-                        return res.text()
-                    })
-                    .then((m) => {
-                    })
-                    .catch((error) => {
-                        console.log('Ошибка загрузки файла');
-                    })
-            }
-            return navigate(`/requestsFilials/${requestResponse.id}`);
-        }
-    }, [requestResponse])
     // Handlers
     const backBtnHandler = () => {
-        return navigate(`/requestsFilials`);
+        return navigate(`/requestsByHelicopter`);
     }
-    const createRequestHandler = () => {
-        if (selectedFilial) {
-            let request: CreateRequestFilialType = {
-                idRequestFilial: requestResponse?.id,
-                idFilial: selectedFilial,
-                routes: gridData
+    const confirmHandler = () => {
+
+    }
+    const refresh = () => {
+        getRequestById(requestId);
+    }
+    const selectFlightRangeDateHandler = (value: RangeValue<Dayjs>) => {
+        if (value) {
+            if (value[0] && value[1]) {
+                setFlyDateStart(value[0]);
+                setFlyDateFinish(value[1]);
+                // updateFieldRequest({
+                //     id: requestId,
+                //     field: "date",
+                //     dateStart: value[0].format('YYYY-MM-DD HH:mm:ss'),
+                //     dateFinish: value[1].format('YYYY-MM-DD HH:mm:ss')
+                // });
             }
-            createRequestByFilial(request);
-        } else {
-            missingFilialMessage();
         }
     }
     // -----
     return (
         <>
-            {messageContextHolder}
             <CreateFlightModal visible={createFlightModalVisible} setVisible={setCreateFlightModalVisible}
-                               setGridData={setGridData}/>
+                               refresh={getRequestById}/>
             {selectedRecord &&
                 <UpdateFlightModal visible={updateFlightModalVisible} setVisible={setUpdateFlightModalVisible}
-                                   setGridData={setGridData} rowData={selectedRecord} setRowData={setSelectedRecord}/>
+                                   refresh={getRequestById} rowData={selectedRecord} setRowData={setSelectedRecord}/>
             }
             <Flex gap="small" vertical>
                 <Navbar/>
-                {(filials === undefined || isCreateRequestByFilialLoading) ?
+                {(airlines === undefined || requestData === undefined) ?
                     <Flex style={{height: window.innerHeight}} justify={justifyOptions.center}
                           align={alignOptions.center}>
                         <Spin size={'large'}/>
@@ -154,13 +153,35 @@ export const CreateRequestByFilialsScreen = () => {
                         <Flex justify={justifyOptions.flexStart}>
                             <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
                                 <Flex gap="middle" style={{margin: "0 0 7px 0"}}>
-                                    <Tooltip placement="bottomRight" title={"Вернуться в меню"}>
-                                        <Button size={'large'} onClick={() => {
+                                    <Button size={'large'} onClick={backBtnHandler} icon={<RollbackOutlined/>}/>
+                                    <Button size={'large'} icon={<LogoutOutlined/>}/>
+                                    <Button size={'large'} onClick={refresh} icon={<RedoOutlined/>}/>
+                                </Flex>
+                                <Text>Код заявки <strong>{requestId}</strong></Text>
+                                <Text><strong>{requestData.nameState}</strong></Text>
+                                <Button size={'middle'} onClick={() => {
+                                    Modal.confirm({
+                                        title: 'Отправка на согласование',
+                                        okText: "Да, отправить",
+                                        onOk: () => {
+                                        },
+                                        content: 'Сформировать заявку на согласование в СОП?',
+                                        footer: (_, {OkBtn, CancelBtn}) => (
+                                            <>
+                                                <CancelBtn/>
+                                                <OkBtn/>
+                                            </>
+                                        ),
+                                    });
+                                }}>На согласование</Button>
+                                {requestData.nameState === 'На согласовании' &&
+                                    <>
+                                        <Button size={'middle'} onClick={() => {
                                             Modal.confirm({
-                                                onOk: () => backBtnHandler(),
-                                                okText: 'Да',
-                                                title: 'Вернуться в меню?',
-                                                content: 'На этой странице есть изменения, которые будут потеряны, если вы решите закрыть ее.',
+                                                title: 'Внимание',
+                                                okText: "Да, утвердить",
+                                                onOk: confirmHandler,
+                                                content: 'Вы точно хотите утвердить заявку?',
                                                 footer: (_, {OkBtn, CancelBtn}) => (
                                                     <>
                                                         <CancelBtn/>
@@ -168,37 +189,65 @@ export const CreateRequestByFilialsScreen = () => {
                                                     </>
                                                 ),
                                             });
-                                        }} icon={<RollbackOutlined/>}/>
-                                    </Tooltip>
-                                    <Tooltip title={"Создать заявку"} placement="right">
-                                        <Button type={'primary'} ghost size={'large'} onClick={createRequestHandler}
-                                                icon={<PlusOutlined/>}/>
-                                    </Tooltip>
-                                </Flex>
-                                <Text>Код заявки <strong>N/A</strong></Text>
-                                <Text><strong>Заявка создается</strong></Text>
+                                        }}>Утвердить</Button>
+                                        <Button size={'middle'} onClick={() => {
+                                            Modal.confirm({
+                                                title: 'Внимание',
+                                                okText: "Да, отклонить",
+                                                onOk: () => {
+                                                },
+                                                content: 'Вы точно хотите отклонить заявку?',
+                                                footer: (_, {OkBtn, CancelBtn}) => (
+                                                    <>
+                                                        <CancelBtn/>
+                                                        <OkBtn/>
+                                                    </>
+                                                ),
+                                            });
+                                        }}>Отклонить</Button>
+                                    </>
+                                }
                             </Flex>
                             <Divider type={'vertical'}
-                                     style={{height: 120}}/>
-                            <Flex style={{margin: "0 0 0 10px"}} gap="small" vertical>
+                                     style={{height: requestData.nameState === 'Создано' ? 160 : requestData.nameState === 'Утверждено' || requestData.nameState === 'Отклонено' ? 120 : 200}}/>
+                            <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
                                 <Select
+                                    style={{width: '100%'}}
+                                    disabled={requestData.nameState === 'Утверждено'}
                                     size={'middle'}
-                                    placeholder="Выберите филиал"
-                                    loading={isFilialsLoading}
-                                    style={{width: 330}}
-                                    options={filials.map((filial: FilialModel): {
+                                    placeholder="Филиал"
+                                    loading={isAirlinesLoading}
+                                    value={airline.toString()}
+                                    options={airlines.map((airline: AirlineModel): {
                                         value: string,
                                         label: string
-                                    } => ({value: filial.id.toString(), label: filial.name}))}
-                                    onSelect={(value) => setSelectedFilial(value)}
+                                    } => ({value: airline.id.toString(), label: airline.name}))}
+                                    onSelect={(value) => setAirline(value)}
                                 />
-                                <Upload  {...propsFile} >
-                                    <Button
-                                        size={'middle'} style={{width: 330}}
-                                        icon={<UploadOutlined/>}>Добавить файл
-                                        полетной
-                                        заявки</Button>
-                                </Upload>
+                                <Select
+                                    style={{width: '100%'}}
+                                    disabled={requestData.nameState === 'Утверждено'}
+                                    size={'middle'}
+                                    placeholder="Филиал"
+                                    loading={isWorkTypesLoading}
+                                    value={workType.toString()}
+                                    options={workTypes?.map((workType: WorkTypeModel): {
+                                        value: string,
+                                        label: string
+                                    } => ({value: workType.id.toString(), label: workType.name}))}
+                                    onSelect={(value) => setWorkType(value)}
+                                />
+                                <DatePicker style={{width: '100%'}}
+                                            size={'middle'} showTime onChange={(value) => {
+                                    if (value)
+                                        setFlightDate(value)
+                                }} onOk={(value) => setFlightDate(value)}/>
+                                <RangePicker
+                                    showTime={true}
+                                    value={[flyDateStart, flyDateFinish]}
+                                    format={dateFormat}
+                                    onChange={selectFlightRangeDateHandler}
+                                />
                             </Flex>
                         </Flex>
                         <Collapse defaultActiveKey={['0']} items={[
@@ -209,7 +258,7 @@ export const CreateRequestByFilialsScreen = () => {
                                     <>
                                         <Flex wrap="wrap" gap="small" justify={justifyOptions.flexStart}
                                               style={{margin: "0 0 15px 0"}}>
-                                            <Button size={'middle'}
+                                            <Button disabled={requestData.nameState === 'Утверждено'} size={'middle'}
                                                     style={{width: 152}}
                                                     onClick={() => setCreateFlightModalVisible(true)}>Добавить
                                                 маршрут</Button>
@@ -227,7 +276,8 @@ export const CreateRequestByFilialsScreen = () => {
                                                 groupSummaryPosition={'docked'}
                                                 summaryPosition={'docked'}
                                                 onChilddoubletap={(event: any) => {
-                                                    setSelectedRecord(event.location.record.data);
+                                                    if (requestData.nameState !== 'Утверждено')
+                                                        setSelectedRecord(event.location.record.data);
                                                 }}
                                                 columns={[
                                                     {
@@ -256,6 +306,13 @@ export const CreateRequestByFilialsScreen = () => {
                                                     {
                                                         text: 'Аэропорт вылета',
                                                         dataIndex: 'airportDeparture',
+                                                        groupable: true,
+                                                        filterType: 'string',
+                                                        flex: 1
+                                                    },
+                                                    {
+                                                        text: 'Аэропорт назначения',
+                                                        dataIndex: 'airportArrival',
                                                         groupable: true,
                                                         filterType: 'string',
                                                         flex: 1

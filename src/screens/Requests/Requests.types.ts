@@ -24,10 +24,14 @@ export type RequestsGridType = {
 
 export type RequestRoutesGridType = {
     workType: string,
+    workTypeId?:string,
     employee: string,
+    employeeId?: string,
     dateTime: string,
     airportDeparture: string,
+    airportDepartureId?: string,
     airportArrival: string,
+    airportArrivalId?: string,
     passengerCount: string,
     cargoWeightMount: string,
     cargoWeightIn: string,

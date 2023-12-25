@@ -1,5 +1,18 @@
 import React, {useEffect, useRef, useState} from "react";
-import {Button, Collapse, Divider, Flex, message, Modal, Select, Spin, Typography, Upload, UploadProps} from "antd";
+import {
+    Button,
+    Collapse,
+    Divider,
+    Empty,
+    Flex,
+    message,
+    Modal,
+    Select,
+    Spin,
+    Typography,
+    Upload,
+    UploadProps
+} from "antd";
 import {FilialModel} from "../../models/FilialModel";
 import {LogoutOutlined, RedoOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
@@ -47,7 +60,7 @@ export const EditRequestByFilialsScreen = () => {
         customRequest: (e: any) => {
             const formData = new FormData();
             formData.append("fileName", e.file.name);
-            formData.append("idRequestFilial", filialId);
+            formData.append("idRequestFilial", requestId);
             formData.append("fileBody", e.file);
             setFileUploading(true);
             fetch('http://localhost:8080/flight/api/file/create', {
@@ -98,7 +111,7 @@ export const EditRequestByFilialsScreen = () => {
         },
         fileList,
     }
-    // -----current.cmp.expandoKey
+    //
 
     // Web requests
     const [getRequestById, {
@@ -130,13 +143,14 @@ export const EditRequestByFilialsScreen = () => {
     }, []);
     useEffect(() => {
         if (requestData) {
-            setFileList([{
-                uid: `${requestData.idRequestFile}`,
-                name: `${requestData.nameRequestFile}`,
-                status: 'done',
-                url: `http://localhost:8080/flight/api/file/get?id=${requestData.idRequestFile}`,
-                percent: 100,
-            }])
+            if (requestData.idRequestFile)
+                setFileList([{
+                    uid: `${requestData.idRequestFile}`,
+                    name: `${requestData.nameRequestFile}`,
+                    status: 'done',
+                    url: `http://localhost:8080/flight/api/file/get?id=${requestData.idRequestFile}`,
+                    percent: 100,
+                }])
             setRequestId(requestData.id);
             setFilialId(requestData.idFilial);
             setStatusId(requestData.idState);
@@ -291,6 +305,10 @@ export const EditRequestByFilialsScreen = () => {
                                         полетной
                                         заявки</Button>
                                 </Upload>
+                                {(!requestData?.idRequestFile && fileList === null) &&
+                                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={false}
+                                           style={{height: 25}}/>
+                                }
                             </Flex>
                         </Flex>
                         <Collapse defaultActiveKey={['0']} items={[

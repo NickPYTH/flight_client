@@ -40,4 +40,5 @@ export type CreateRequestFilialType = {
     fileName?: string,
     file?: string,
     routes: RequestRoutesGridType[],
+    idRequestFilial?: string | undefined
 }

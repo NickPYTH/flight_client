@@ -5,6 +5,10 @@ import {CreateRequestByFilialsScreen} from "../screens/RequestsByFilials/CreateR
 import {AllRequestsScreen} from "../screens/Requests/AllRequestsScreen";
 import {AllRequestsByFilialsScreen} from "../screens/RequestsByFilials/AllRequestsByFilialsScreen";
 import {EditRequestScreen} from "../screens/Requests/EditRequestScreen";
+import {CreateRequestScreen} from "../screens/Requests/CreateRequestScreen";
+import {NotFound} from "../components/Layout/NotFound";
+import {AllRequestsByHelicopterScreen} from "../screens/RequestsByHelicopter/AllRequestsByHelicopterScreen";
+import {EditRequestsByHelicopterScreen} from "../screens/RequestsByHelicopter/EditRequestByHelicopterScreen";
 
 export const Router: React.FC = () => {
 
@@ -36,12 +40,23 @@ export const Router: React.FC = () => {
             />
             <Route
                 path='/requests/create'
-                element={<CreateRequestByFilialsScreen/>}
+                element={<CreateRequestScreen/>}
+            />
+            {/* ----- */}
+
+            {/* Requests by helicopter */}
+            <Route
+                path='/requestsByHelicopter'
+                element={<AllRequestsByHelicopterScreen/>}
+            />
+            <Route
+                path='/requestsByHelicopter/:id'
+                element={<EditRequestsByHelicopterScreen/>}
             />
             {/* ----- */}
             <Route
                 path='*'
-                element={<div>404</div>}
+                element={<NotFound/>}
             />
         </Routes>
     </BrowserRouter>)

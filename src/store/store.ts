@@ -12,6 +12,8 @@ import {flightTargetAPI} from "../services/FlightTargetService";
 import {empCustomerAPI} from "../services/EmpCustomerService";
 import {flightPlanAPI} from "../services/FlightPlanService";
 import {fileStorageAPI} from "../services/FileStorageService";
+import {requestHelicopterAPI} from "../services/RequestHelicopterService";
+import {airlinesAPI} from "../services/AirlineService";
 
 const rootReducer = combineReducers({
     userReducer,
@@ -27,6 +29,8 @@ const rootReducer = combineReducers({
     [empCustomerAPI.reducerPath]: empCustomerAPI.reducer,
     [flightPlanAPI.reducerPath]: flightPlanAPI.reducer,
     [fileStorageAPI.reducerPath]: fileStorageAPI.reducer,
+    [requestHelicopterAPI.reducerPath]: requestHelicopterAPI.reducer,
+    [airlinesAPI.reducerPath]: airlinesAPI.reducer,
 })
 
 export const setupStore = () => {
@@ -46,6 +50,8 @@ export const setupStore = () => {
                 .concat(empCustomerAPI.middleware)
                 .concat(flightPlanAPI.middleware)
                 .concat(fileStorageAPI.middleware)
+                .concat(requestHelicopterAPI.middleware)
+                .concat(airlinesAPI.middleware)
     })
 }
 
