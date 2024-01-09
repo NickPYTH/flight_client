@@ -14,7 +14,7 @@ import {
     UploadProps
 } from "antd";
 import {FilialModel} from "../../models/FilialModel";
-import {LogoutOutlined, RedoOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
+import {RedoOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {alignOptions, justifyOptions} from "../../configs/constants";
@@ -217,7 +217,7 @@ export const EditRequestByFilialsScreen = () => {
                                    refresh={getRequestById} rowData={selectedRecord} setRowData={setSelectedRecord}/>
             }
             <Flex gap="small" vertical>
-                <Navbar/>
+                <Navbar title={'Редактирование заявки'}/>
                 {(filials === undefined || requestData === undefined) ?
                     <Flex style={{height: window.innerHeight}} justify={justifyOptions.center}
                           align={alignOptions.center}>
@@ -226,13 +226,8 @@ export const EditRequestByFilialsScreen = () => {
                     <>
                         <Flex justify={justifyOptions.flexStart}>
                             <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
-                                <Flex gap="middle" style={{margin: "0 0 7px 0"}}>
-                                    <Button size={'large'} onClick={backBtnHandler} icon={<RollbackOutlined/>}/>
-                                    <Button size={'large'} icon={<LogoutOutlined/>}/>
-                                    <Button size={'large'} onClick={refresh} icon={<RedoOutlined/>}/>
-                                </Flex>
-                                <Text>Код заявки <strong>{requestId}</strong></Text>
-                                <Text><strong>{requestData.nameState}</strong></Text>
+                                <Text>Код заявки: <strong>{requestId}</strong></Text>
+                                <Text>Состояние заявки: <strong>{requestData.nameState}</strong></Text>
                                 {requestData.nameState === 'Создано' &&
                                     <Button size={'middle'} onClick={() => {
                                         Modal.confirm({
@@ -247,7 +242,7 @@ export const EditRequestByFilialsScreen = () => {
                                                 </>
                                             ),
                                         });
-                                    }}>На согласование</Button>
+                                    }}>Отправить на согласование</Button>
                                 }
                                 {requestData.nameState === 'На согласовании' &&
                                     <>
@@ -264,7 +259,7 @@ export const EditRequestByFilialsScreen = () => {
                                                     </>
                                                 ),
                                             });
-                                        }}>Утвердить</Button>
+                                        }}>Утвердить заявку</Button>
                                         <Button size={'middle'} onClick={() => {
                                             Modal.confirm({
                                                 title: 'Внимание',
@@ -278,13 +273,14 @@ export const EditRequestByFilialsScreen = () => {
                                                     </>
                                                 ),
                                             });
-                                        }}>Отклонить</Button>
+                                        }}>Отклонить заявку</Button>
                                     </>
                                 }
+                                <Button onClick={backBtnHandler} icon={<RollbackOutlined/>}>Вернуться в меню</Button>
                             </Flex>
                             <Divider type={'vertical'}
                                      style={{height: requestData.nameState === 'Создано' ? 160 : requestData.nameState === 'Утверждено' || requestData.nameState === 'Отклонено' ? 120 : 200}}/>
-                            <Flex gap="small" vertical>
+                            <Flex gap="small" vertical style={{margin: "5px 10px 0 10px"}}>
                                 <Select
                                     disabled={requestData.nameState === 'Утверждено'}
                                     size={'middle'}
@@ -362,7 +358,7 @@ export const EditRequestByFilialsScreen = () => {
                                                         text: 'Дата и время вылета',
                                                         dataIndex: 'dateTime',
                                                         groupable: true,
-                                                        filterType: 'date',
+                                                        filterType: 'string',
                                                         flex: 1
                                                     },
                                                     {

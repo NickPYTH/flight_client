@@ -79,13 +79,14 @@ export const CreateCostModal = (props: ModalProps) => {
     }
     const createCostHandler = () => {
         if (selectedWorkType && selectedFilial && flightDuration && flightCost) {
-            // createCostRequest({
-            //     requestId: props.requestId,
-            //     filialId: selectedFilial,
-            //     workTypeId: selectedWorkType,
-            //     duration: flightDuration,
-            //     cost: flightCost
-            // })
+            createCostRequest({
+                requestId: props.requestId,
+                filialId: selectedFilial,
+                workTypeId: selectedWorkType,
+                duration: flightDuration,
+                cost: flightCost,
+                costId: "",
+            })
         } else {
 
         }

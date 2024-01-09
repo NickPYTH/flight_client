@@ -1,20 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {RangeValue} from 'rc-picker/lib/interface'
 import {Dayjs} from "dayjs";
-import {
-    Button,
-    Collapse,
-    DatePicker,
-    Divider,
-    Flex,
-    Form,
-    message,
-    Modal,
-    Select,
-    Spin,
-    Tooltip,
-    Typography
-} from "antd";
+import {Button, Collapse, DatePicker, Divider, Flex, Form, message, Modal, Select, Spin, Typography} from "antd";
 import {PlusOutlined, RollbackOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
@@ -114,6 +101,11 @@ export const CreateRequestScreen = () => {
         //@ts-ignore
         document?.body?.querySelectorAll("ext-treegroupedgrid")[0]?.cmp?.expandAll();
     }, [updateFlightModalVisible]);
+    useEffect(() => {
+        if (createResponse) {
+            return navigate(`/requests/${createResponse?.id}`);
+        }
+    }, [createResponse])
     // Handlers
     const backBtnHandler = () => {
         return navigate(`/requests`);
@@ -192,7 +184,7 @@ export const CreateRequestScreen = () => {
                                    rowData={selectedRecord} setRowData={setSelectedRecord}/>
             }
             <Flex gap="small" vertical>
-                <Navbar/>
+                <Navbar title={'Создание заявки'}/>
                 {filials === undefined ?
                     <Flex style={{height: window.innerHeight}} justify={justifyOptions.center}
                           align={alignOptions.center}>
@@ -201,99 +193,90 @@ export const CreateRequestScreen = () => {
                     <>
                         <Flex justify={justifyOptions.flexStart}>
                             <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
-                                <Flex gap="middle" style={{margin: "0 0 7px 0"}}>
-                                    <Button size={'large'} onClick={() => {
-                                        Modal.confirm({
-                                            onOk: () => backBtnHandler(),
-                                            okText: 'Да',
-                                            title: 'Вернуться в меню?',
-                                            content: 'На этой странице есть изменения, которые будут потеряны, если вы решите закрыть ее.',
-                                            footer: (_, {OkBtn, CancelBtn}) => (
-                                                <>
-                                                    <CancelBtn/>
-                                                    <OkBtn/>
-                                                </>
-                                            ),
-                                        });
-                                    }} icon={<RollbackOutlined/>}/>
-                                    <Tooltip title={"Создать заявку"} placement="right">
-                                        <Button type={'primary'} ghost size={'large'} onClick={createRequestHandler}
-                                                icon={<PlusOutlined/>}/>
-                                    </Tooltip>
+                                <Button onClick={createRequestHandler}
+                                        icon={<PlusOutlined/>}>Создать заявку</Button>
+                                <Button onClick={() => {
+                                    Modal.confirm({
+                                        onOk: () => backBtnHandler(),
+                                        okText: 'Да',
+                                        title: 'Вернуться в меню?',
+                                        content: 'На этой странице есть изменения, которые будут потеряны, если вы решите закрыть ее.',
+                                        footer: (_, {OkBtn, CancelBtn}) => (
+                                            <>
+                                                <CancelBtn/>
+                                                <OkBtn/>
+                                            </>
+                                        ),
+                                    });
+                                }} icon={<RollbackOutlined/>}>Вернуться в меню</Button>
+                            </Flex>
+                            <Divider type={'vertical'} style={{height: 160}}/>
+                            <Flex vertical gap={"small"} style={{width: 550}}>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>Дата полета</Text>
+                                    <RangePicker
+                                        style={{width: 400}}
+                                        showTime={true}
+                                        value={[flyDateStart, flyDateFinish]}
+                                        format={dateFormat}
+                                        onChange={selectFlightRangeDateHandler}
+                                    />
                                 </Flex>
-                                <Text>Код заявки <strong>N/A</strong></Text>
-                                <Text><strong>Заявка создается</strong></Text>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>Воздушное судно</Text>
+                                    <Select
+                                        value={aircraftModel}
+                                        disabled={isAircraftModelLoading}
+                                        size={'middle'}
+                                        placeholder="Воздушное судно"
+                                        loading={isFilialsLoading}
+                                        style={{width: 400}}
+                                        options={aircraftModelData?.map((aircraftModel: AircraftModel): {
+                                            value: string,
+                                            label: string
+                                        } => ({
+                                            value: aircraftModel.idContractData.toString(),
+                                            label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
+                                        }))}
+                                        onSelect={selectAircraftModelHandler}
+                                    />
+                                </Flex>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>Цель полета</Text>
+                                    <Select
+                                        value={flightTarget}
+                                        disabled={isFlightTargetLoading}
+                                        size={'middle'}
+                                        placeholder="Цель полета"
+                                        loading={isFilialsLoading}
+                                        style={{width: 400}}
+                                        options={flightTargetData?.map((flightTargetModel: FlightTargetModel): {
+                                            value: string,
+                                            label: string
+                                        } => ({
+                                            value: flightTargetModel.id.toString(),
+                                            label: flightTargetModel.name
+                                        }))}
+                                        onSelect={selectFlightTargetHandler}
+                                    />
+                                </Flex>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>ФИО заказчика</Text>
+                                    <Select
+                                        value={empCustomer}
+                                        disabled={isFlightTargetLoading}
+                                        size={'middle'}
+                                        placeholder="ФИО заказчика"
+                                        loading={isFilialsLoading}
+                                        style={{width: 400}}
+                                        options={empCustomerData?.map((empCustomerModel: EmpCustomerModel) => ({
+                                            value: empCustomerModel.id.toString(),
+                                            label: empCustomerModel.empLastName + " " + empCustomerModel.empName + " " + empCustomerModel.empSecondName
+                                        }))}
+                                        onSelect={selectEmpCustomerHandler}
+                                    />
+                                </Flex>
                             </Flex>
-                            <Divider type={'vertical'} style={{height: 237}}/>
-                            <Flex gap="small" vertical style={{margin: "20px 0 0 13px"}}>
-                                <Form
-                                    style={{maxWidth: 600}}
-                                    // @ts-ignore
-                                    labelCol={{span: 8}}
-                                    wrapperCol={{span: 20}}
-                                >
-                                    <Form.Item label="Дата полета">
-                                        <RangePicker
-                                            showTime={true}
-                                            value={[flyDateStart, flyDateFinish]}
-                                            format={dateFormat}
-                                            onChange={selectFlightRangeDateHandler}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item label="Воздушное судно">
-                                        <Select
-                                            value={aircraftModel}
-                                            disabled={isAircraftModelLoading}
-                                            size={'middle'}
-                                            placeholder="Воздушное судно"
-                                            loading={isFilialsLoading}
-                                            style={{width: '100%'}}
-                                            options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                value: string,
-                                                label: string
-                                            } => ({
-                                                value: aircraftModel.idContractData.toString(),
-                                                label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                            }))}
-                                            onSelect={selectAircraftModelHandler}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item label="Цель полета">
-                                        <Select
-                                            value={flightTarget}
-                                            disabled={isFlightTargetLoading}
-                                            size={'middle'}
-                                            placeholder="Цель полета"
-                                            loading={isFilialsLoading}
-                                            style={{width: '100%'}}
-                                            options={flightTargetData?.map((flightTargetModel: FlightTargetModel): {
-                                                value: string,
-                                                label: string
-                                            } => ({
-                                                value: flightTargetModel.id.toString(),
-                                                label: flightTargetModel.name
-                                            }))}
-                                            onSelect={selectFlightTargetHandler}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item label="ФИО заказчика">
-                                        <Select
-                                            value={empCustomer}
-                                            disabled={isFlightTargetLoading}
-                                            size={'middle'}
-                                            placeholder="ФИО заказчика"
-                                            loading={isFilialsLoading}
-                                            style={{width: '100%'}}
-                                            options={empCustomerData?.map((empCustomerModel: EmpCustomerModel) => ({
-                                                value: empCustomerModel.id.toString(),
-                                                label: empCustomerModel.empLastName + " " + empCustomerModel.empName + " " + empCustomerModel.empSecondName
-                                            }))}
-                                            onSelect={selectEmpCustomerHandler}
-                                        />
-                                    </Form.Item>
-                                </Form>
-                            </Flex>
-                            <Divider type={'vertical'} style={{height: 237, marginLeft: 23}}/>
                             <Flex gap="small" vertical style={{margin: "5px 0 0 13px"}}>
                                 {requestId &&
                                     <FileUploadDND requestId={requestId}/>
@@ -346,7 +329,7 @@ export const CreateRequestScreen = () => {
                                                     text: 'Дата и время вылета',
                                                     dataIndex: 'dateTime',
                                                     groupable: true,
-                                                    filterType: 'date',
+                                                    filterType: 'string',
                                                     flex: 1
                                                 },
                                                 {

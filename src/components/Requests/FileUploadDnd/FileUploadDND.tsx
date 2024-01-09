@@ -32,7 +32,7 @@ export const FileUploadDND = (props: any) => {
                         url: `http://localhost:8080/flight/api/file/get?id=${id}`,
                         percent: 100
                     }));
-                    message.success('Файл обновлен');
+                    message.success('Файл загружен');
                 })
                 .catch((error) => {
                     message.error('Ошибка загрузки файла');

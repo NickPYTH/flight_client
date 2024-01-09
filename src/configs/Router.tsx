@@ -31,12 +31,12 @@ export const Router: React.FC = () => {
 
             {/* Requests */}
             <Route
-                path='/requests'
-                element={<AllRequestsScreen/>}
-            />
-            <Route
                 path='/requests/:id'
                 element={<EditRequestScreen/>}
+            />
+            <Route
+                path='/requests'
+                element={<AllRequestsScreen/>}
             />
             <Route
                 path='/requests/create'

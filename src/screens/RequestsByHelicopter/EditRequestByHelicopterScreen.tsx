@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Button, Collapse, DatePicker, Divider, Flex, Modal, Select, Spin, Typography} from "antd";
-import {LogoutOutlined, RedoOutlined, RollbackOutlined} from "@ant-design/icons";
+import {RedoOutlined, RollbackOutlined} from "@ant-design/icons";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {alignOptions, justifyOptions} from "../../configs/constants";
 import {useLocation, useNavigate} from "react-router-dom";
@@ -11,7 +11,7 @@ import {Ext} from "../../index";
 import {CreateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilials/CreateFlightModal";
 import {UpdateFlightModal} from "../../components/RequestsByFilials/EditRequestByFilials/UpdateFlightModal";
 import {RequestRoutesGridType} from "./Requests.types";
-import {Dayjs} from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 import {airlinesAPI} from "../../services/AirlineService";
 import {AirlineModel} from "../../models/AirlineModel";
 import {requestHelicopterAPI} from "../../services/RequestHelicopterService";
@@ -78,21 +78,21 @@ export const EditRequestsByHelicopterScreen = () => {
             setAirline(requestData.airlineId);
             setWorkType(requestData.workTypeId);
             setStatusId(requestData.idState);
-            // setGridData(requestData?.routes.map((route) => (
-            //     {
-            //         dateTime: route.dateTime,
-            //         cargoWeightOut: route.cargoWeightOut,
-            //         cargoWeightMount: route.cargoWeightMount,
-            //         routeId: route.routeId,
-            //         passengerCount: route.passengerCount,
-            //         workType: route.workType,
-            //         airportDeparture: route.airportDeparture,
-            //         cargoWeightIn: route.cargoWeightIn,
-            //         id: route.id,
-            //         employee: route.employee,
-            //         airportArrival: route.airportArrival
-            //     }
-            // )));
+            setGridData(requestData?.routes.map((route:any) => (
+                {
+                    dateTime: route.dateTime,
+                    cargoWeightOut: route.cargoWeightOut,
+                    cargoWeightMount: route.cargoWeightMount,
+                    routeId: route.routeId,
+                    passengerCount: route.passengerCount,
+                    workType: route.workType,
+                    airportDeparture: route.airportDeparture,
+                    cargoWeightIn: route.cargoWeightIn,
+                    id: route.id,
+                    employee: route.employee,
+                    airportArrival: route.airportArrival
+                }
+            )));
         }
     }, [requestData]);
     useEffect(() => {
@@ -143,7 +143,7 @@ export const EditRequestsByHelicopterScreen = () => {
                                    refresh={getRequestById} rowData={selectedRecord} setRowData={setSelectedRecord}/>
             }
             <Flex gap="small" vertical>
-                <Navbar/>
+                <Navbar title={'Редактирование заявки'}/>
                 {(airlines === undefined || requestData === undefined) ?
                     <Flex style={{height: window.innerHeight}} justify={justifyOptions.center}
                           align={alignOptions.center}>
@@ -154,7 +154,6 @@ export const EditRequestsByHelicopterScreen = () => {
                             <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
                                 <Flex gap="middle" style={{margin: "0 0 7px 0"}}>
                                     <Button size={'large'} onClick={backBtnHandler} icon={<RollbackOutlined/>}/>
-                                    <Button size={'large'} icon={<LogoutOutlined/>}/>
                                     <Button size={'large'} onClick={refresh} icon={<RedoOutlined/>}/>
                                 </Flex>
                                 <Text>Код заявки <strong>{requestId}</strong></Text>
@@ -237,14 +236,17 @@ export const EditRequestsByHelicopterScreen = () => {
                                     } => ({value: workType.id.toString(), label: workType.name}))}
                                     onSelect={(value) => setWorkType(value)}
                                 />
-                                <DatePicker style={{width: '100%'}}
-                                            size={'middle'} showTime onChange={(value) => {
+                                <DatePicker
+                                    defaultValue={dayjs(requestData?.date)}
+                                    style={{width: '100%'}}
+                                    size={'middle'} showTime onChange={(value) => {
                                     if (value)
                                         setFlightDate(value)
                                 }} onOk={(value) => setFlightDate(value)}/>
                                 <RangePicker
                                     showTime={true}
-                                    value={[flyDateStart, flyDateFinish]}
+                                    defaultValue={[flyDateStart, flyDateFinish]}
+                                    value={[dayjs(requestData?.flyDateStart), dayjs(requestData?.flyDateFinish)]}
                                     format={dateFormat}
                                     onChange={selectFlightRangeDateHandler}
                                 />

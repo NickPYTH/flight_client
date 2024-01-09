@@ -1,4 +1,4 @@
-import {AutoComplete, Button, DatePicker, Flex, Form, InputNumber, Modal} from "antd";
+import {AutoComplete, Button, DatePicker, Flex, Form, InputNumber, Modal, Typography} from "antd";
 import React, {useEffect, useState} from "react";
 import {WorkTypeModel} from "../../../models/WorkTypeModel";
 import {EmployeeResponsibleModel} from "../../../models/EmployeeResponsibleModel";
@@ -7,8 +7,10 @@ import {workTypesAPI} from "../../../services/WorkTypesService";
 import {airportsAPI} from "../../../services/AirportsService";
 import {employeeResponsibleAPI} from "../../../services/EmployeeResponsibleService";
 import dayjs from 'dayjs';
-import {justifyOptions} from "../../../configs/constants";
+import {alignOptions, justifyOptions} from "../../../configs/constants";
 import {RequestRoutesGridType} from "../../../screens/Requests/Requests.types";
+
+const {Text} = Typography;
 
 type ModalProps = {
     visible: boolean,
@@ -177,106 +179,81 @@ export const UpdateFlightModal = (props: ModalProps) => {
             >
                 <Flex gap={'middle'} style={{width: '100%'}}>
                     <Flex vertical gap={"small"} style={{width: '100%'}}>
-                        <Form.Item label="Воздушное судно">
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Вид работ</Text>
                             <AutoComplete
                                 value={workTypeModal}
-                                size={'large'}
                                 options={workTypeOptions}
-                                style={{width: '100%'}}
+                                style={{width: 350}}
                                 onSearch={(text) => setWorkTypeOptions(getWorkTypesValue(text))}
                                 placeholder={'Выберите вид работ'}
                                 notFoundContent={'Виды работ не найдены'}
                                 onSelect={(value, option) => setWorkTypeModal(value)}
                             />
-                        </Form.Item>
-                        <Form.Item label="Ответственное лицо">
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Ответственное лицо</Text>
                             <AutoComplete
                                 value={empRespModal}
-                                size={'large'}
                                 options={empRespOptions}
-                                style={{width: '100%'}}
+                                style={{width: 350}}
                                 onSearch={(text) => setEmpRespOptions(getEmpRespValue(text))}
                                 placeholder={'Выберите ответственного'}
                                 notFoundContent={'Ответственные не найдены'}
                                 onSelect={(value, option) => setEmpRespModal(value)}
                             />
-                        </Form.Item>
-                        <Form.Item label="Дата и время вылета">
-                            <DatePicker defaultValue={dayjs(flightDateModal, 'YYYY-MM-DD HH:mm:ss')}
-                                        style={{width: '100%'}}
-                                        size={'large'} showTime onChange={(value) => {
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Дата</Text>
+                            <DatePicker
+                                value={dayjs(flightDateModal, 'YYYY-MM-DD HH:mm:ss')}
+                                style={{width: 350}} showTime onChange={(value) => {
                                 if (value)
-                                    setFlightDateModal(value)
-                            }} onOk={(value) => setFlightDateModal(value)}/>
-                        </Form.Item>
-                        <Form.Item label="Аэропорт вылета">
+                                    setFlightDateModal(value.format('YYYY-MM-DD HH:mm:ss'))
+                            }} onOk={(value) => setFlightDateModal(value.format('YYYY-MM-DD HH:mm:ss'))}/>
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Аэропорт вылета</Text>
                             <AutoComplete
                                 value={airportDepartureModal}
-                                size={'large'}
                                 options={airportsOptions}
-                                style={{width: '100%'}}
+                                style={{width: 350}}
                                 onSearch={(text) => setAirportsOptions(getAirportsValue(text))}
                                 placeholder={'Выберите аэропорт вылета'}
                                 notFoundContent={'Ответственные не найдены'}
                                 onSelect={(value, option) => setAirportDepartureModal(value)}
                             />
-                        </Form.Item>
-                        <Form.Item label="Аэропорт назначения">
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Аэропорт прибытия</Text>
                             <AutoComplete
                                 value={airportArrivalModal}
-                                size={'large'}
                                 options={airportsOptions}
-                                style={{width: '100%'}}
+                                style={{width: 350}}
                                 onSearch={(text) => setAirportsOptions(getAirportsValue(text))}
                                 placeholder={'Выберите аэропорт назанчения'}
                                 notFoundContent={'Ответственные не найдены'}
                                 onSelect={(value, option) => setAirportArrivalModal(value)}
                             />
-                        </Form.Item>
-                    </Flex>
-                    <Flex vertical gap={"small"} style={{width: '100%'}}>
-                        <Form.Item label="Место дозаправки">
-                            <AutoComplete
-                                value={airportArrivalModal}
-                                size={'large'}
-                                options={airportsOptions}
-                                style={{width: '100%'}}
-                                onSearch={(text) => setAirportsOptions(getAirportsValue(text))}
-                                placeholder={'Выберите место дозаправки'}
-                                notFoundContent={'Место дозаправки не найдено'}
-                                onSelect={(value, option) => setAirportArrivalModal(value)}
-                            />
-                        </Form.Item>
-                        <Form.Item label="Колличество пассажиров">
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Колличество пассажиров</Text>
                             <InputNumber
                                 value={passengerCountModal}
-                                style={{width: '100%'}}
-                                size={'large'}
+                                style={{width: 350}}
                                 min={0}
                                 onChange={(value) => {
                                     if (value)
                                         setPassengerCountModal(value);
                                 }}
                                 placeholder={'Введите колличество пассажиров'}
-                            /></Form.Item>
-                        <Form.Item label="Общий вес груза">
-                            <InputNumber
-                                value={cargoWeightMount}
-                                style={{width: '100%'}}
-                                size={'large'}
-                                min={0}
-                                onChange={(value) => {
-                                    if (value)
-                                        setCargoWeightMount(value);
-                                }}
-                                placeholder={'Введите общий вес груза'}
                             />
-                        </Form.Item>
-                        <Form.Item label="Вес груза на внешней подвеске">
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Груз на внешней подвеске</Text>
                             <InputNumber
                                 value={cargoWeightOut}
-                                style={{width: '100%'}}
-                                size={'large'}
+                                style={{width: 350}}
                                 min={0}
                                 onChange={(value) => {
                                     if (value)
@@ -284,12 +261,12 @@ export const UpdateFlightModal = (props: ModalProps) => {
                                 }}
                                 placeholder={'Введите вес груза на внешней подвеске'}
                             />
-                        </Form.Item>
-                        <Form.Item label="Вес груза внутри физюляжа">
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Груз внутри фюзеляжа</Text>
                             <InputNumber
                                 value={cargoWeighIn}
-                                style={{width: '100%'}}
-                                size={'large'}
+                                style={{width: 350}}
                                 min={0}
                                 onChange={(value) => {
                                     if (value)
@@ -297,7 +274,20 @@ export const UpdateFlightModal = (props: ModalProps) => {
                                 }}
                                 placeholder={'Введите вес груза внутри физюляжа'}
                             />
-                        </Form.Item>
+                        </Flex>
+                        <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                            <Text>Общий вес груза</Text>
+                            <InputNumber
+                                value={cargoWeightMount}
+                                style={{width: 350}}
+                                min={0}
+                                onChange={(value) => {
+                                    if (value)
+                                        setCargoWeightMount(value);
+                                }}
+                                placeholder={'Введите общий вес груза'}
+                            />
+                        </Flex>
                     </Flex>
                 </Flex>
             </Form>

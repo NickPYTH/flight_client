@@ -20,7 +20,7 @@ export const AllRequestsByHelicopterScreen = () => {
     }] = requestHelicopterAPI.useGetAllByYearMutation();
     const [year, setYear] = useState<number>(2023);
     const addBtnHandler = () => {
-        return navigate(`create`);
+        //return navigate(`create`);
     };
     const selectYearHandler = (value: number) => {
         setYear(value);
@@ -46,10 +46,7 @@ export const AllRequestsByHelicopterScreen = () => {
     })
     return (
         <Flex gap="small" vertical>
-            <Navbar/>
-            <Flex style={{margin: "0 0 0 8px"}} gap={"small"} justify={justifyOptions.center}>
-                <Text style={{fontSize: 22, fontWeight: 500}}>Заявки на выполнение полетов вертолетами</Text>
-            </Flex>
+            <Navbar title={'Заявки на выполнение полетов вертолетами'}/>
             <Flex style={{margin: "0 5px 0 5px"}} gap={"small"} vertical={false} justify={justifyOptions.spaceBetween}>
                 <Button onClick={addBtnHandler}>Добавить</Button>
                 <Select

@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import {RangeValue} from 'rc-picker/lib/interface'
 import dayjs, {Dayjs} from "dayjs";
 import {Button, Collapse, DatePicker, Divider, Flex, Form, InputNumber, Select, Spin, Typography} from "antd";
-import {HistoryOutlined, RedoOutlined, RollbackOutlined} from "@ant-design/icons";
+import {RollbackOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
 import {Navbar} from "../../components/Layout/Header/Navbar";
 import {alignOptions, justifyOptions} from "../../configs/constants";
@@ -288,7 +288,7 @@ export const EditRequestScreen = () => {
                 <EditCostModal visible={visibleEditCostModal} setVisible={setVisibleEditCostModal} requestId={requestId}
                                refresh={getAllCosts} data={selectedCostRecord}/>}
             <Flex gap="small" vertical>
-                <Navbar/>
+                <Navbar title={'Редактирование заявки'}/>
                 {(filials === undefined || requestData === undefined) ?
                     <Flex style={{height: window.innerHeight}} justify={justifyOptions.center}
                           align={alignOptions.center}>
@@ -297,88 +297,83 @@ export const EditRequestScreen = () => {
                     <>
                         <Flex justify={justifyOptions.flexStart}>
                             <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
-                                <Flex gap="middle" style={{margin: "0 0 7px 0"}}>
-                                    <Button size={'large'} onClick={backBtnHandler} icon={<RollbackOutlined/>}/>
-                                    <Button size={'large'} onClick={() => setVisibleHistoryModal(true)}
-                                            icon={<HistoryOutlined/>}/>
-                                    <Button size={'large'} onClick={refresh} icon={<RedoOutlined/>}/>
-                                </Flex>
                                 <Text><strong>На согласовании</strong></Text>
                                 <Text>Номер заявки <strong>{requestId}</strong></Text>
                                 <Text>Код заявки <strong>{requestId}</strong></Text>
-                                <Button style={{marginTop: 5, width: 160}} size={'middle'}>Полет выполнен</Button>
-                                <Button style={{width: 160}} danger size={'middle'}>Полет отклонен</Button>
+                                <Button style={{marginTop: 5,}}>Полет выполнен</Button>
+                                <Button danger>Полет отклонен</Button>
+                                <Button onClick={backBtnHandler} icon={<RollbackOutlined/>}>Вернуться в меню</Button>
+                                {/*<Button onClick={() => setVisibleHistoryModal(true)}*/}
+                                {/*        icon={<HistoryOutlined/>}>История редактирования</Button>*/}
                             </Flex>
-                            <Divider type={'vertical'} style={{height: 237}}/>
-                            <Flex gap="small" vertical style={{margin: "20px 0 0 13px"}}>
-                                <Form
-                                    style={{maxWidth: 600}}
-                                    // @ts-ignore
-                                    labelCol={{span: 8}}
-                                    wrapperCol={{span: 20}}
-                                >
-                                    <Form.Item label="Дата полета">
-                                        <RangePicker
-                                            showTime={true}
-                                            value={[flyDateStart, flyDateFinish]}
-                                            format={dateFormat}
-                                            onChange={selectFlightRangeDateHandler}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item label="Воздушное судно">
-                                        <Select
-                                            value={aircraftModel}
-                                            disabled={isAircraftModelLoading}
-                                            size={'middle'}
-                                            placeholder="Воздушное судно"
-                                            loading={isFilialsLoading}
-                                            style={{width: '100%'}}
-                                            options={aircraftModelData?.map((aircraftModel: AircraftModel): {
-                                                value: string,
-                                                label: string
-                                            } => ({
-                                                value: aircraftModel.idContractData.toString(),
-                                                label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
-                                            }))}
-                                            onSelect={selectAircraftModelHandler}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item label="Цель полета">
-                                        <Select
-                                            value={flightTarget}
-                                            disabled={isFlightTargetLoading}
-                                            size={'middle'}
-                                            placeholder="Цель полета"
-                                            loading={isFilialsLoading}
-                                            style={{width: '100%'}}
-                                            options={flightTargetData?.map((flightTargetModel: FlightTargetModel): {
-                                                value: string,
-                                                label: string
-                                            } => ({
-                                                value: flightTargetModel.id.toString(),
-                                                label: flightTargetModel.name
-                                            }))}
-                                            onSelect={selectFlightTargetHandler}
-                                        />
-                                    </Form.Item>
-                                    <Form.Item label="ФИО заказчика">
-                                        <Select
-                                            value={empCustomer}
-                                            disabled={isFlightTargetLoading}
-                                            size={'middle'}
-                                            placeholder="ФИО заказчика"
-                                            loading={isFilialsLoading}
-                                            style={{width: '100%'}}
-                                            options={empCustomerData?.map((empCustomerModel: EmpCustomerModel) => ({
-                                                value: empCustomerModel.id.toString(),
-                                                label: empCustomerModel.empLastName + " " + empCustomerModel.empName + " " + empCustomerModel.empSecondName
-                                            }))}
-                                            onSelect={selectEmpCustomerHandler}
-                                        />
-                                    </Form.Item>
-                                </Form>
+                            <Divider type={'vertical'} style={{height: 230}}/>
+                            <Flex vertical gap={"small"} style={{width: 550}}>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>Дата полета</Text>
+                                    <RangePicker
+                                        style={{width: 400}}
+                                        showTime={true}
+                                        value={[flyDateStart, flyDateFinish]}
+                                        format={dateFormat}
+                                        onChange={selectFlightRangeDateHandler}
+                                    />
+                                </Flex>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>Воздушное судно</Text>
+                                    <Select
+                                        value={aircraftModel}
+                                        disabled={isAircraftModelLoading}
+                                        size={'middle'}
+                                        placeholder="Воздушное судно"
+                                        loading={isFilialsLoading}
+                                        style={{width: 400}}
+                                        options={aircraftModelData?.map((aircraftModel: AircraftModel): {
+                                            value: string,
+                                            label: string
+                                        } => ({
+                                            value: aircraftModel.idContractData.toString(),
+                                            label: `${aircraftModel.aircraftModelName}/${aircraftModel.contractName}/${aircraftModel.airlineName}`
+                                        }))}
+                                        onSelect={selectAircraftModelHandler}
+                                    />
+                                </Flex>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>Цель полета</Text>
+                                    <Select
+                                        value={flightTarget}
+                                        disabled={isFlightTargetLoading}
+                                        size={'middle'}
+                                        placeholder="Цель полета"
+                                        loading={isFilialsLoading}
+                                        style={{width: 400}}
+                                        options={flightTargetData?.map((flightTargetModel: FlightTargetModel): {
+                                            value: string,
+                                            label: string
+                                        } => ({
+                                            value: flightTargetModel.id.toString(),
+                                            label: flightTargetModel.name
+                                        }))}
+                                        onSelect={selectFlightTargetHandler}
+                                    />
+                                </Flex>
+                                <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                                    <Text>ФИО заказчика</Text>
+                                    <Select
+                                        value={empCustomer}
+                                        disabled={isFlightTargetLoading}
+                                        size={'middle'}
+                                        placeholder="ФИО заказчика"
+                                        loading={isFilialsLoading}
+                                        style={{width: 400}}
+                                        options={empCustomerData?.map((empCustomerModel: EmpCustomerModel) => ({
+                                            value: empCustomerModel.id.toString(),
+                                            label: empCustomerModel.empLastName + " " + empCustomerModel.empName + " " + empCustomerModel.empSecondName
+                                        }))}
+                                        onSelect={selectEmpCustomerHandler}
+                                    />
+                                </Flex>
                             </Flex>
-                            <Divider type={'vertical'} style={{height: 237, marginLeft: 23}}/>
+                            <Divider type={'vertical'} style={{height: 230, marginLeft: 23}}/>
                             <Flex gap="small" vertical style={{margin: "5px 0 0 13px"}}>
                                 {requestId &&
                                     <FileUploadDND requestId={requestId}/>
@@ -486,7 +481,7 @@ export const EditRequestScreen = () => {
                                                     text: 'Налет (час)',
                                                     dataIndex: 'duration',
                                                     groupable: true,
-                                                    filterType: 'date',
+                                                    filterType: 'string',
                                                     flex: 1
                                                 },
                                                 {
@@ -557,7 +552,7 @@ export const EditRequestScreen = () => {
                                                     text: 'Дата и время вылета',
                                                     dataIndex: 'dateTime',
                                                     groupable: true,
-                                                    filterType: 'date',
+                                                    filterType: 'string',
                                                     flex: 1
                                                 },
                                                 {

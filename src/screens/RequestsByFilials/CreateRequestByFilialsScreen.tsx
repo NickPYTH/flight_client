@@ -1,18 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {
-    Button,
-    Collapse,
-    Divider,
-    Flex,
-    message,
-    Modal,
-    Select,
-    Spin,
-    Tooltip,
-    Typography,
-    Upload,
-    UploadProps
-} from "antd";
+import {Button, Collapse, Divider, Flex, message, Modal, Select, Spin, Upload, UploadProps} from "antd";
 import {FilialModel} from "../../models/FilialModel";
 import {PlusOutlined, RollbackOutlined, UploadOutlined} from "@ant-design/icons";
 import {filialsAPI} from "../../services/FilialsService";
@@ -26,8 +13,6 @@ import {Ext} from "../../index";
 import {CreateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/CreateFlightModal";
 import {UpdateFlightModal} from "../../components/RequestsByFilials/CreateRequestByFilials/UpdateFlightModal";
 import {requestsByFilialsAPI} from "../../services/RequestFilialService";
-
-const {Text} = Typography;
 
 export const CreateRequestByFilialsScreen = () => {
     // States
@@ -56,7 +41,7 @@ export const CreateRequestByFilialsScreen = () => {
             setFile([e.file])
         },
         onRemove: () => {
-            setFile([]);
+            setFile(null);
         },
         fileList: file,
     }
@@ -144,7 +129,7 @@ export const CreateRequestByFilialsScreen = () => {
                                    setGridData={setGridData} rowData={selectedRecord} setRowData={setSelectedRecord}/>
             }
             <Flex gap="small" vertical>
-                <Navbar/>
+                <Navbar title={'Создание заявки'}/>
                 {(filials === undefined || isCreateRequestByFilialLoading) ?
                     <Flex style={{height: window.innerHeight}} justify={justifyOptions.center}
                           align={alignOptions.center}>
@@ -153,34 +138,26 @@ export const CreateRequestByFilialsScreen = () => {
                     <>
                         <Flex justify={justifyOptions.flexStart}>
                             <Flex gap="small" vertical style={{margin: "5px 10px 0 17px"}}>
-                                <Flex gap="middle" style={{margin: "0 0 7px 0"}}>
-                                    <Tooltip placement="bottomRight" title={"Вернуться в меню"}>
-                                        <Button size={'large'} onClick={() => {
-                                            Modal.confirm({
-                                                onOk: () => backBtnHandler(),
-                                                okText: 'Да',
-                                                title: 'Вернуться в меню?',
-                                                content: 'На этой странице есть изменения, которые будут потеряны, если вы решите закрыть ее.',
-                                                footer: (_, {OkBtn, CancelBtn}) => (
-                                                    <>
-                                                        <CancelBtn/>
-                                                        <OkBtn/>
-                                                    </>
-                                                ),
-                                            });
-                                        }} icon={<RollbackOutlined/>}/>
-                                    </Tooltip>
-                                    <Tooltip title={"Создать заявку"} placement="right">
-                                        <Button type={'primary'} ghost size={'large'} onClick={createRequestHandler}
-                                                icon={<PlusOutlined/>}/>
-                                    </Tooltip>
-                                </Flex>
-                                <Text>Код заявки <strong>N/A</strong></Text>
-                                <Text><strong>Заявка создается</strong></Text>
+                                <Button onClick={createRequestHandler}
+                                        icon={<PlusOutlined/>}>Создать заявку</Button>
+                                <Button onClick={() => {
+                                    Modal.confirm({
+                                        onOk: () => backBtnHandler(),
+                                        okText: 'Да',
+                                        title: 'Вернуться в меню?',
+                                        content: 'На этой странице есть изменения, которые будут потеряны, если вы решите закрыть ее.',
+                                        footer: (_, {OkBtn, CancelBtn}) => (
+                                            <>
+                                                <CancelBtn/>
+                                                <OkBtn/>
+                                            </>
+                                        ),
+                                    });
+                                }} icon={<RollbackOutlined/>}>Вернуться в меню</Button>
                             </Flex>
                             <Divider type={'vertical'}
-                                     style={{height: 120}}/>
-                            <Flex style={{margin: "0 0 0 10px"}} gap="small" vertical>
+                                     style={{height: file ? 115 : 84}}/>
+                            <Flex style={{margin: "5px 10px 0 10px"}} gap="small" vertical>
                                 <Select
                                     size={'middle'}
                                     placeholder="Выберите филиал"

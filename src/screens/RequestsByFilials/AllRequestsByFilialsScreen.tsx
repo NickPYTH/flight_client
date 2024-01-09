@@ -47,10 +47,7 @@ export const AllRequestsByFilialsScreen = () => {
     })
     return (
         <Flex gap="small" vertical>
-            <Navbar/>
-            <Flex justify={justifyOptions.center}>
-                <Text style={{fontSize: 22, fontWeight: 500}}>Заявки на выполнение полетов</Text>
-            </Flex>
+            <Navbar title={'Заявки на выполнение полетов'}/>
             <Flex style={{margin: "0 5px 0 5px"}} gap={"small"} justify={justifyOptions.spaceBetween}>
                 <Button onClick={addBtnHandler}>Добавить</Button>
                 <Select

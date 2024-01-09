@@ -1,4 +1,4 @@
-import {AutoComplete, DatePicker, Flex, InputNumber, Modal} from "antd";
+import {AutoComplete, DatePicker, Flex, InputNumber, Modal, Typography} from "antd";
 import React, {useEffect, useState} from "react";
 import {WorkTypeModel} from "../../../models/WorkTypeModel";
 import {EmployeeResponsibleModel} from "../../../models/EmployeeResponsibleModel";
@@ -8,6 +8,9 @@ import {workTypesAPI} from "../../../services/WorkTypesService";
 import {airportsAPI} from "../../../services/AirportsService";
 import {employeeResponsibleAPI} from "../../../services/EmployeeResponsibleService";
 import {RequestRoutesGridType} from "../../../screens/Requests/Requests.types";
+import {alignOptions, justifyOptions} from "../../../configs/constants";
+
+const {Text} = Typography;
 
 type ModalProps = {
     visible: boolean,
@@ -166,101 +169,119 @@ export const CreateFlightModal = (props: ModalProps) => {
             open={props.visible}
             onOk={() => createRouteHandler()}
             onCancel={closeCreateRouteModalHandler}
-            width={740}
+            width={600}
         >
             <Flex gap={'small'} style={{width: '100%'}}>
                 <Flex vertical gap={"small"} style={{width: '100%'}}>
-                    <AutoComplete
-                        value={workTypeModal}
-                        size={'large'}
-                        options={workTypeOptions}
-                        style={{width: '100%'}}
-                        onSearch={(text) => setWorkTypeOptions(getWorkTypesValue(text))}
-                        placeholder={'Выберите вид работ'}
-                        notFoundContent={'Виды работ не найдены'}
-                        onSelect={(value, option) => setWorkTypeModal(value)}
-                    />
-                    <AutoComplete
-                        value={empRespModal}
-                        size={'large'}
-                        options={empRespOptions}
-                        style={{width: '100%'}}
-                        onSearch={(text) => setEmpRespOptions(getEmpRespValue(text))}
-                        placeholder={'Выберите ответственного'}
-                        notFoundContent={'Ответственные не найдены'}
-                        onSelect={(value, option) => setEmpRespModal(value)}
-                    />
-                    <DatePicker value={flightDateModal} style={{width: '100%'}} size={'large'} showTime
-                                onChange={(value) => {
-                                    if (value)
-                                        setFlightDateModal(value)
-                                }} onOk={(value) => setFlightDateModal(value)}/>
-                    <AutoComplete
-                        value={airportDepartureModal}
-                        size={'large'}
-                        options={airportsOptions}
-                        style={{width: '100%'}}
-                        onSearch={(text) => setAirportsOptions(getAirportsValue(text))}
-                        placeholder={'Выберите аэропорт вылета'}
-                        notFoundContent={'Ответственные не найдены'}
-                        onSelect={(value, option) => setAirportDepartureModal(value)}
-                    />
-                    <AutoComplete
-                        value={airportArrivalModal}
-                        size={'large'}
-                        options={airportsOptions}
-                        style={{width: '100%'}}
-                        onSearch={(text) => setAirportsOptions(getAirportsValue(text))}
-                        placeholder={'Выберите аэропорт назанчения'}
-                        notFoundContent={'Ответственные не найдены'}
-                        onSelect={(value, option) => setAirportArrivalModal(value)}
-                    />
-                </Flex>
-                <Flex vertical gap={"small"} style={{width: '100%'}}>
-                    <InputNumber
-                        value={passengerCountModal}
-                        style={{width: '100%'}}
-                        size={'large'}
-                        min={0}
-                        onChange={(value) => {
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Вид работ</Text>
+                        <AutoComplete
+                            value={workTypeModal}
+                            options={workTypeOptions}
+                            style={{width: 350}}
+                            onSearch={(text) => setWorkTypeOptions(getWorkTypesValue(text))}
+                            placeholder={'Выберите вид работ'}
+                            notFoundContent={'Виды работ не найдены'}
+                            onSelect={(value, option) => setWorkTypeModal(value)}
+                        />
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Ответственное лицо</Text>
+                        <AutoComplete
+                            value={empRespModal}
+                            options={empRespOptions}
+                            style={{width: 350}}
+                            onSearch={(text) => setEmpRespOptions(getEmpRespValue(text))}
+                            placeholder={'Выберите ответственного'}
+                            notFoundContent={'Ответственные не найдены'}
+                            onSelect={(value, option) => setEmpRespModal(value)}
+                        />
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Дата</Text>
+                        <DatePicker
+                            value={flightDateModal ? flightDateModal : null} //value={dayjs('2015/01/01', flightDateModal)}
+                            style={{width: 350}} showTime onChange={(value) => {
                             if (value)
-                                setPassengerCountModal(value);
-                        }}
-                        placeholder={'Введите колличество пассажиров'}
-                    />
-                    <InputNumber
-                        value={cargoWeightMount}
-                        style={{width: '100%'}}
-                        size={'large'}
-                        min={0}
-                        onChange={(value) => {
-                            if (value)
-                                setCargoWeightMount(value);
-                        }}
-                        placeholder={'Введите общий вес груза'}
-                    />
-                    <InputNumber
-                        value={cargoWeightOut}
-                        style={{width: '100%'}}
-                        size={'large'}
-                        min={0}
-                        onChange={(value) => {
-                            if (value)
-                                setCargoWeightOut(value);
-                        }}
-                        placeholder={'Введите вес груза на внешней подвеске'}
-                    />
-                    <InputNumber
-                        value={cargoWeighIn}
-                        style={{width: '100%'}}
-                        size={'large'}
-                        min={0}
-                        onChange={(value) => {
-                            if (value)
-                                setCargoWeighIn(value);
-                        }}
-                        placeholder={'Введите вес груза внутри физюляжа'}
-                    />
+                                setFlightDateModal(value)
+                        }} onOk={(value) => setFlightDateModal(value)}/>
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Аэропорт вылета</Text>
+                        <AutoComplete
+                            value={airportDepartureModal}
+                            options={airportsOptions}
+                            style={{width: 350}}
+                            onSearch={(text) => setAirportsOptions(getAirportsValue(text))}
+                            placeholder={'Выберите аэропорт вылета'}
+                            notFoundContent={'Ответственные не найдены'}
+                            onSelect={(value, option) => setAirportDepartureModal(value)}
+                        />
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Аэропорт прибытия</Text>
+                        <AutoComplete
+                            value={airportArrivalModal}
+                            options={airportsOptions}
+                            style={{width: 350}}
+                            onSearch={(text) => setAirportsOptions(getAirportsValue(text))}
+                            placeholder={'Выберите аэропорт назанчения'}
+                            notFoundContent={'Ответственные не найдены'}
+                            onSelect={(value, option) => setAirportArrivalModal(value)}
+                        />
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Колличество пассажиров</Text>
+                        <InputNumber
+                            value={passengerCountModal}
+                            style={{width: 350}}
+                            min={0}
+                            onChange={(value) => {
+                                if (value)
+                                    setPassengerCountModal(value);
+                            }}
+                            placeholder={'Введите колличество пассажиров'}
+                        />
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Груз на внешней подвеске</Text>
+                        <InputNumber
+                            value={cargoWeightOut}
+                            style={{width: 350}}
+                            min={0}
+                            onChange={(value) => {
+                                if (value)
+                                    setCargoWeightOut(value);
+                            }}
+                            placeholder={'Введите вес груза на внешней подвеске'}
+                        />
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Груз внутри фюзеляжа</Text>
+                        <InputNumber
+                            value={cargoWeighIn}
+                            style={{width: 350}}
+                            min={0}
+                            onChange={(value) => {
+                                if (value)
+                                    setCargoWeighIn(value);
+                            }}
+                            placeholder={'Введите вес груза внутри физюляжа'}
+                        />
+                    </Flex>
+                    <Flex align={alignOptions.center} justify={justifyOptions.spaceBetween}>
+                        <Text>Общий вес груза</Text>
+                        <InputNumber
+                            value={cargoWeightMount}
+                            style={{width: 350}}
+                            min={0}
+                            onChange={(value) => {
+                                if (value)
+                                    setCargoWeightMount(value);
+                            }}
+                            placeholder={'Введите общий вес груза'}
+                        />
+                    </Flex>
                 </Flex>
             </Flex>
         </Modal>
